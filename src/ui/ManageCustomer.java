@@ -4,6 +4,8 @@ import model.User;
 import java.io.*;
 import java.util.ArrayList;
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
 import java.awt.event.*;
 import java.awt.Color;
@@ -27,57 +29,67 @@ public class ManageCustomer {
         f.add(btnBack);
 
         JLabel l1 = new JLabel("Username");
-        l1.setBounds(30,20,100,25);
+        l1.setBounds(30,40,100,25);
         f.add(l1);
 
         JTextField tfUsername = new JTextField();
-        tfUsername.setBounds(150,20,200,25);
+        tfUsername.setBounds(150,40,200,25);
+        tfUsername.getDocument().addDocumentListener(fillColorListener(tfUsername));
         f.add(tfUsername);
 
         JLabel l2 = new JLabel("Password");
-        l2.setBounds(380,20,100,25);
+        l2.setBounds(380,40,100,25);
         f.add(l2);
 
         JTextField tfPassword = new JTextField();
-        tfPassword.setBounds(500,20,200,25);
+        tfPassword.setBounds(500,40,200,25);
+        tfPassword.getDocument().addDocumentListener(fillColorListener(tfPassword));
         f.add(tfPassword);
 
         JLabel l3 = new JLabel("Phone");
-        l3.setBounds(30,60,100,25);
+        l3.setBounds(30,80,100,25);
         f.add(l3);
 
         JTextField tfPhone = new JTextField();
-        tfPhone.setBounds(150,60,200,25);
+        tfPhone.setBounds(150,80,200,25);
+        tfPhone.getDocument().addDocumentListener(fillColorListener(tfPhone));
         f.add(tfPhone);
 
         JLabel l4 = new JLabel("Email");
-        l4.setBounds(380,60,100,25);
+        l4.setBounds(380,80,100,25);
         f.add(l4);
 
         JTextField tfEmail = new JTextField();
-        tfEmail.setBounds(500,60,200,25);
+        tfEmail.setBounds(500,80,200,25);
+        tfEmail.getDocument().addDocumentListener(fillColorListener(tfEmail));
         f.add(tfEmail);
 
         JButton addBtn = new JButton("Add");
-        addBtn.setBounds(30, 100, 90, 30);
+        addBtn.setBounds(30, 120, 90, 30);
         addBtn.setBackground(new Color(102, 204, 255));
-        addBtn.setForeground(Color.WHITE);
+        addBtn.setForeground(Color.BLACK);
         f.add(addBtn);
 
         JButton updBtn = new JButton("Update");
-        updBtn.setBounds(130, 100, 90, 30);
+        updBtn.setBounds(130, 120, 90, 30);
+        updBtn.setBackground(new Color(255, 204, 102));
+        updBtn.setForeground(Color.BLACK);
         f.add(updBtn);
 
         JButton activateBtn = new JButton("Activate");
-        activateBtn.setBounds(230, 100, 100, 30);
+        activateBtn.setBounds(230, 120, 100, 30);
+        activateBtn.setBackground(new Color(51, 204, 51));
+        activateBtn.setForeground(Color.BLACK);
         f.add(activateBtn);
 
         JButton deactivateBtn = new JButton("Deactivate");
-        deactivateBtn.setBounds(340, 100, 110, 30);
+        deactivateBtn.setBounds(340, 120, 110, 30);
+        deactivateBtn.setBackground(new Color(201, 51, 0));
+        deactivateBtn.setForeground(Color.BLACK);
         f.add(deactivateBtn);
         
         JButton clearBtn = new JButton("Clear");
-        clearBtn.setBounds(560, 100, 90, 30); 
+        clearBtn.setBounds(560, 120, 90, 30); 
         f.add(clearBtn);
         
         model = new DefaultTableModel();
@@ -193,10 +205,25 @@ public class ManageCustomer {
             tfPassword.setText("");
             tfPhone.setText("");
             tfEmail.setText("");
-            table.clearSelection(); // optional: deselect any selected row
+            table.clearSelection(); 
         });
 
         f.setVisible(true);
+    }
+    
+    DocumentListener fillColorListener(JTextField tf) {
+        return new DocumentListener() {
+            void update() {
+                if(tf.getText().isEmpty()) {
+                    tf.setBackground(Color.WHITE);
+                } else {
+                    tf.setBackground(new Color(255, 255, 204)); 
+                }
+            }
+            public void insertUpdate(DocumentEvent e) { update(); }
+            public void removeUpdate(DocumentEvent e) { update(); }
+            public void changedUpdate(DocumentEvent e) { update(); }
+        };
     }
 
     private void loadCustomers() {
