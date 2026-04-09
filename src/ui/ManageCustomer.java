@@ -1,7 +1,8 @@
 package ui;
 
 import model.User;
-import java.io.*;
+import service.ManageCustomerService;
+
 import java.util.ArrayList;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -12,21 +13,25 @@ import java.awt.Color;
 
 public class ManageCustomer {
 
-	private ArrayList<User> allUsers = new ArrayList<>();
-    private ArrayList<User> list = new ArrayList<>();
+    private ArrayList<User> allUsers;
+    private ArrayList<User> list;
+
     private DefaultTableModel model;
-    private final String file = "data/users.txt";
-    
+
+    private ManageCustomerService service = new ManageCustomerService();
+
     public ManageCustomer(User user) {
 
         JFrame f = new JFrame("Customer Management");
         f.setSize(800,420);
         f.setLayout(null);
         f.setLocationRelativeTo(null);
-        
+
+
         JButton btnBack = new JButton("< Back");
         btnBack.setBounds(30, 10, 90, 25);
         f.add(btnBack);
+
 
         JLabel l1 = new JLabel("Username");
         l1.setBounds(30,40,100,25);
@@ -37,6 +42,7 @@ public class ManageCustomer {
         tfUsername.getDocument().addDocumentListener(fillColorListener(tfUsername));
         f.add(tfUsername);
 
+
         JLabel l2 = new JLabel("Password");
         l2.setBounds(380,40,100,25);
         f.add(l2);
@@ -45,6 +51,7 @@ public class ManageCustomer {
         tfPassword.setBounds(500,40,200,25);
         tfPassword.getDocument().addDocumentListener(fillColorListener(tfPassword));
         f.add(tfPassword);
+
 
         JLabel l3 = new JLabel("Phone");
         l3.setBounds(30,80,100,25);
@@ -55,6 +62,7 @@ public class ManageCustomer {
         tfPhone.getDocument().addDocumentListener(fillColorListener(tfPhone));
         f.add(tfPhone);
 
+
         JLabel l4 = new JLabel("Email");
         l4.setBounds(380,80,100,25);
         f.add(l4);
@@ -64,128 +72,335 @@ public class ManageCustomer {
         tfEmail.getDocument().addDocumentListener(fillColorListener(tfEmail));
         f.add(tfEmail);
 
+
         JButton addBtn = new JButton("Add");
         addBtn.setBounds(30, 120, 90, 30);
-        addBtn.setBackground(new Color(102, 204, 255));
-        addBtn.setForeground(Color.BLACK);
+        addBtn.setBackground(new Color(102,204,255));
         f.add(addBtn);
+
 
         JButton updBtn = new JButton("Update");
         updBtn.setBounds(130, 120, 90, 30);
-        updBtn.setBackground(new Color(255, 204, 102));
-        updBtn.setForeground(Color.BLACK);
+        updBtn.setBackground(new Color(255,204,102));
         f.add(updBtn);
+
 
         JButton activateBtn = new JButton("Activate");
         activateBtn.setBounds(230, 120, 100, 30);
-        activateBtn.setBackground(new Color(51, 204, 51));
-        activateBtn.setForeground(Color.BLACK);
+        activateBtn.setBackground(new Color(51,204,51));
         f.add(activateBtn);
+
 
         JButton deactivateBtn = new JButton("Deactivate");
         deactivateBtn.setBounds(340, 120, 110, 30);
-        deactivateBtn.setBackground(new Color(201, 51, 0));
-        deactivateBtn.setForeground(Color.BLACK);
+        deactivateBtn.setBackground(new Color(201,51,0));
+        deactivateBtn.setForeground(Color.WHITE);
         f.add(deactivateBtn);
         
+        Color defaultColor = UIManager.getColor("Button.background");
+
         JButton clearBtn = new JButton("Clear");
-        clearBtn.setBounds(560, 120, 90, 30); 
+        clearBtn.setBounds(560, 120, 90, 30);
         f.add(clearBtn);
-        
+
+
         model = new DefaultTableModel();
-        model.setColumnIdentifiers(new String[]{"ID","Username","Phone","Email","Status"});
+
+        model.setColumnIdentifiers(
+                new String[]{"ID","Username","Phone","Email","Status"}
+        );
+
 
         JTable table = new JTable(model);
+
         JScrollPane sp = new JScrollPane(table);
-        sp.setBounds(30,160,720,150);
+
+        sp.setBounds(30,160,720,180);
+
         f.add(sp);
 
-        loadCustomers();
 
+        // load from service
+        allUsers = service.loadAllUsers();
+
+        list = service.getCustomers(allUsers);
+
+
+        for(User u : list){
+
+            model.addRow(new Object[]{
+
+                    u.getId(),
+                    u.getUsername(),
+                    u.getPhone(),
+                    u.getEmail(),
+                    u.getStatus()
+
+            });
+
+        }
+
+     // ADD CUSTOMER
         addBtn.addActionListener(e -> {
-            String id = getNextId();
+
+            String username = tfUsername.getText().trim();
+            String password = tfPassword.getText().trim();
+            String phone = tfPhone.getText().trim();
+            String email = tfEmail.getText().trim();
+
+            if(username.isEmpty() || password.isEmpty() || phone.isEmpty() || email.isEmpty()){
+                JOptionPane.showMessageDialog(f, "Please fill all fields");
+                return;
+            }
+
+            boolean usernameExists = allUsers.stream()
+                    .anyMatch(u -> u.getUsername().equalsIgnoreCase(username));
+            boolean emailExists = allUsers.stream()
+                    .anyMatch(u -> u.getEmail().equalsIgnoreCase(email));
+
+            if(usernameExists){
+                tfUsername.setBorder(BorderFactory.createLineBorder(Color.RED));
+                tfUsername.setBackground(new Color(255,200,200)); // light red background
+                JOptionPane.showMessageDialog(f, "Username already exists! Customer not added.");
+                return;
+            } else {
+                tfUsername.setBorder(UIManager.getBorder("TextField.border"));
+                tfUsername.setBackground(new Color(255,255,204)); // yellow for typing
+            }
+            
+            if(emailExists){
+                tfEmail.setBorder(BorderFactory.createLineBorder(Color.RED));
+                tfEmail.setBackground(new Color(255,200,200)); // light red background
+                JOptionPane.showMessageDialog(f, "Email already exists! Customer not added.");
+                return;
+            } else {
+                tfEmail.setBorder(UIManager.getBorder("TextField.border"));
+                tfEmail.setBackground(new Color(255,255,204)); // yellow for typing
+            }
+            
+
+            String id = service.getNextCustomerId(allUsers);
+
             User customer = new User(
                     id,
-                    tfUsername.getText(),
-                    tfPassword.getText(),
-                    tfPhone.getText(),
-                    tfEmail.getText(),
-                    "N/A",
-                    "N/A",
+                    username,
+                    password,
+                    phone,
+                    email,
+                    "N/A",  // Security question
+                    "N/A",  // Security answer
                     "Customer",
                     "Active"
             );
+
+            allUsers.add(customer);
             list.add(customer);
+
             model.addRow(new Object[]{
-                    customer.getId(),
-                    customer.getUsername(),
-                    customer.getPhone(),
-                    customer.getEmail(),
-                    customer.getStatus()
+                    id,
+                    username,
+                    phone,
+                    email,
+                    "Active"
             });
-            saveCustomers();
+
+            service.saveAllUsers(allUsers);
+
+            JOptionPane.showMessageDialog(f, "Customer Added Successfully!");
         });
 
-        table.addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent e) {
+
+
+        // CLICK TABLE
+        table.addMouseListener(new MouseAdapter(){
+
+            public void mouseClicked(MouseEvent e){
+
                 int i = table.getSelectedRow();
-                tfUsername.setText(model.getValueAt(i,1).toString());
-                tfPassword.setText(list.get(i).getPassword());
-                tfPhone.setText(model.getValueAt(i,2).toString());
-                tfEmail.setText(model.getValueAt(i,3).toString());
+
+                tfUsername.setText(
+                        list.get(i).getUsername()
+                );
+
+                tfPassword.setText(
+                        list.get(i).getPassword()
+                );
+
+                tfPhone.setText(
+                        list.get(i).getPhone()
+                );
+
+                tfEmail.setText(
+                        list.get(i).getEmail()
+                );
+
             }
+
         });
 
+
+
+        // UPDATE CUSTOMER
         updBtn.addActionListener(e -> {
+
             int i = table.getSelectedRow();
-            if(i < 0) return;
+
+            if(i < 0)
+                return;
+
+
             User u = list.get(i);
+
+
             u.setUsername(tfUsername.getText());
             u.setPassword(tfPassword.getText());
             u.setPhone(tfPhone.getText());
             u.setEmail(tfEmail.getText());
 
-            model.setValueAt(tfUsername.getText(), i, 1);
-            model.setValueAt(tfPhone.getText(), i, 2);
-            model.setValueAt(tfEmail.getText(), i, 3);
 
-            saveCustomers();
+            model.setValueAt(
+                    u.getUsername(),
+                    i,
+                    1
+            );
+
+            model.setValueAt(
+                    u.getPhone(),
+                    i,
+                    2
+            );
+
+            model.setValueAt(
+                    u.getEmail(),
+                    i,
+                    3
+            );
+
+
+            service.saveAllUsers(allUsers);
+
+
+            JOptionPane.showMessageDialog(
+                    f,
+                    "Customer Updated"
+            );
+
         });
 
+
+
+        // ACTIVATE
         activateBtn.addActionListener(e -> {
+
             int i = table.getSelectedRow();
-            if(i < 0) return; 
+
+            if(i < 0)
+                return;
+
 
             User u = list.get(i);
+
             u.setStatus("Active");
-            model.setValueAt("Active", i, 4); 
-            saveCustomers();
+
+
+            model.setValueAt(
+                    "Active",
+                    i,
+                    4
+            );
+
+
+            service.saveAllUsers(allUsers);
+
         });
 
+
+
+        // DEACTIVATE
         deactivateBtn.addActionListener(e -> {
+
             int i = table.getSelectedRow();
-            if(i < 0) return; 
+
+            if(i < 0)
+                return;
+
 
             User u = list.get(i);
+
             u.setStatus("Inactive");
-            model.setValueAt("Inactive", i, 4); 
-            saveCustomers();
+
+
+            model.setValueAt(
+                    "Inactive",
+                    i,
+                    4
+            );
+
+
+            service.saveAllUsers(allUsers);
+
         });
 
-        f.setVisible(true);
-        
         activateBtn.setEnabled(false);
+
         deactivateBtn.setEnabled(false);
+        
+        activateBtn.setBackground(defaultColor);
+        
+        deactivateBtn.setBackground(defaultColor);
 
         table.getSelectionModel().addListSelectionListener(e -> {
+
             int i = table.getSelectedRow();
-            if(i >= 0) {
+
+            if(i >= 0){
+
                 User u = list.get(i);
-                activateBtn.setEnabled(!u.getStatus().equalsIgnoreCase("Active"));
-                deactivateBtn.setEnabled(!u.getStatus().equalsIgnoreCase("Inactive"));
+
+                boolean canActivate =
+                        !u.getStatus().equalsIgnoreCase("Active");
+
+                boolean canDeactivate =
+                        !u.getStatus().equalsIgnoreCase("Inactive");
+
+
+                activateBtn.setEnabled(canActivate);
+                deactivateBtn.setEnabled(canDeactivate);
+
+                activateBtn.setBackground(
+                        canActivate
+                                ? new Color(51,204,51)
+                                : defaultColor
+                );
+
+
+                deactivateBtn.setBackground(
+                        canDeactivate
+                                ? new Color(201,51,0)
+                                : defaultColor
+                );
+
             }
+
         });
-        
+
+
+
+        // CLEAR
+        clearBtn.addActionListener(e -> {
+
+            tfUsername.setText("");
+            tfPassword.setText("");
+            tfPhone.setText("");
+            tfEmail.setText("");
+
+            table.clearSelection();
+
+        });
+
+
+
+        // BACK
         btnBack.addActionListener(e -> {
 
             f.dispose();
@@ -193,126 +408,48 @@ public class ManageCustomer {
             new CounterStaffMenu(user);
 
         });
-        
-        clearBtn.addActionListener(e -> {
-            tfUsername.setText("");
-            tfPassword.setText("");
-            tfPhone.setText("");
-            tfEmail.setText("");
-            table.clearSelection(); 
-        });
+
+
 
         f.setVisible(true);
+
     }
-    
-    DocumentListener fillColorListener(JTextField tf) {
-        return new DocumentListener() {
-            void update() {
-                if(tf.getText().isEmpty()) {
+
+
+
+    // change field color when typing
+    DocumentListener fillColorListener(JTextField tf){
+
+        return new DocumentListener(){
+
+            void update(){
+
+                if(tf.getText().isEmpty())
+
                     tf.setBackground(Color.WHITE);
-                } else {
-                    tf.setBackground(new Color(255, 255, 204)); 
-                }
+
+                else
+
+                    tf.setBackground(
+                            new Color(255,255,204)
+                    );
+
             }
-            public void insertUpdate(DocumentEvent e) { update(); }
-            public void removeUpdate(DocumentEvent e) { update(); }
-            public void changedUpdate(DocumentEvent e) { update(); }
+
+            public void insertUpdate(DocumentEvent e){
+                update();
+            }
+
+            public void removeUpdate(DocumentEvent e){
+                update();
+            }
+
+            public void changedUpdate(DocumentEvent e){
+                update();
+            }
+
         };
+
     }
 
-    private void loadCustomers() {
-        allUsers.clear();
-        list.clear(); 
-        model.setRowCount(0); 
-
-        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
-            String line;
-            while((line = br.readLine()) != null) {
-                String[] data = line.split("\\|");
-                User u = new User(
-                        data[0],
-                        data[1],
-                        data[2],
-                        data[3],
-                        data[4],
-                        data[5],
-                        data[6],
-                        data[7],
-                        data[8]
-                );
-                allUsers.add(u);
-
-                if(u.getRole().equalsIgnoreCase("Customer")) {
-                    list.add(u); // only for table
-                    model.addRow(new Object[]{
-                            u.getId(),
-                            u.getUsername(),
-                            u.getPhone(),
-                            u.getEmail(),
-                            u.getStatus()
-                    });
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void saveCustomers() {
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(file))) {
-            for(User u : allUsers) {
-                // Check if this user is a customer in the table list, update info
-                if(u.getRole().equalsIgnoreCase("Customer")) {
-                    for(User updatedCustomer : list) {
-                        if(u.getId().equals(updatedCustomer.getId())) {
-                            u.setUsername(updatedCustomer.getUsername());
-                            u.setPassword(updatedCustomer.getPassword());
-                            u.setPhone(updatedCustomer.getPhone());
-                            u.setEmail(updatedCustomer.getEmail());
-                            u.setStatus(updatedCustomer.getStatus());
-                            break;
-                        }
-                    }
-                }
-
-                // Write the user to file
-                String line = u.getId() + "|" +
-                        u.getUsername() + "|" +
-                        u.getPassword() + "|" +
-                        u.getPhone() + "|" +
-                        u.getEmail() + "|" +
-                        u.getSecurityQuestion() + "|" +
-                        u.getSecurityAnswer() + "|" +
-                        u.getRole() + "|" +
-                        u.getStatus();
-                bw.write(line);
-                bw.newLine();
-            }
-        } catch(IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private String getNextId() {
-
-        int max = 0;
-
-        for(User u : allUsers) {
-
-            if(u.getRole().equalsIgnoreCase("Customer")) {
-
-                String id = u.getId(); 
-
-                try {
-                    int num = Integer.parseInt(id.substring(1));
-
-                    if(num > max)
-                        max = num;
-
-                } catch(Exception e) {}
-            }
-        }
-
-        return String.format("C%03d", max + 1);
-    }
 }
