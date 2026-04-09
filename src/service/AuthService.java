@@ -130,6 +130,23 @@ public class AuthService {
 
         return null;
     }
+    
+    public String getSecurityAnswer(String username) {
+    	File file = new File("data/users.txt");
+    	
+        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] data = line.split("\\|");
+                if (data[1].equalsIgnoreCase(username)) {
+                    return data[6]; 
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
     public boolean resetPassword(String username, String answer, String newPassword) {
         File file = new File("data/users.txt");

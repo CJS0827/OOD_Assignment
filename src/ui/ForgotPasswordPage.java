@@ -69,12 +69,28 @@ public class ForgotPasswordPage {
 
                 AuthService authService = new AuthService();
                 String question = authService.getSecurityQuestion(username);
+                String answer = authService.getSecurityAnswer(username);
 
                 if (question == null) {
                     JOptionPane.showMessageDialog(frame, "Username not found.");
                     questionText.setText("");
+                    answerText.setText("");
+                    questionText.setEditable(false);
+                    answerText.setEditable(false);
+                } else if (question.equals("N/A") && answer.equals("N/A")) {
+                    // Default N/A case: auto-fill and lock fields
+                    questionText.setText("N/A");
+                    answerText.setText("N/A");
+                    questionText.setEditable(false);
+                    answerText.setEditable(false);
+                    JOptionPane.showMessageDialog(frame, 
+                        "Your account was created by staff. You can reset your password directly.");
                 } else {
+                    // Normal case: show question, allow user to type answer
                     questionText.setText(question);
+                    answerText.setText("");
+                    questionText.setEditable(false);
+                    answerText.setEditable(true);
                 }
             }
         });
