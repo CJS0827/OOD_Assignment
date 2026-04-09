@@ -20,6 +20,10 @@ public class ManageCustomer {
         f.setSize(800,420);
         f.setLayout(null);
         f.setLocationRelativeTo(null);
+        
+        JButton btnBack = new JButton("< Back");
+        btnBack.setBounds(30, 10, 90, 25);
+        f.add(btnBack);
 
         JLabel l1 = new JLabel("Username");
         l1.setBounds(30,20,100,25);
