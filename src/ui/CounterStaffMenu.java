@@ -48,6 +48,11 @@ public class CounterStaffMenu {
         	frame.dispose();
         	new ManageCustomer(user);
         });
+        
+        btnAppointment.addActionListener(e -> {
+        	frame.dispose();
+        	new CreateAppointment(user);
+        });
 
         btnLogout.addActionListener(e -> {
             frame.dispose();
