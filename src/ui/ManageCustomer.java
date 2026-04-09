@@ -187,17 +187,11 @@ public class ManageCustomer {
         });
         
         btnBack.addActionListener(e -> {
+
             f.dispose();
 
-            if (user.getRole().equals("Manager")) {
-                new ManagerMenu(user);
-            } else if (user.getRole().equals("CounterStaff")) {
-                new CounterStaffMenu(user);
-            } else if (user.getRole().equals("Technician")) {
-                new TechnicianMenu(user);
-            } else if (user.getRole().equals("Customer")) {
-                new CustomerMenu(user);
-            }
+            new CounterStaffMenu(user);
+
         });
         
         clearBtn.addActionListener(e -> {
