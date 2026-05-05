@@ -7,13 +7,17 @@ import javax.swing.*;
 import java.awt.Color;
 import com.toedter.calendar.JDateChooser;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.SpinnerDateModel;
 
 public class CreateAppointment {
 
     private JComboBox<String> customerBox;
     private JComboBox<String> serviceBox;
     private JComboBox<String> technicianBox;
-    private JComboBox<String> timeBox;
+    
+    private JSpinner timeSpinner;
 
     private JDateChooser dateChooser;
     private JTextField plateField;
@@ -42,7 +46,7 @@ public class CreateAppointment {
         l1.setBounds(30, 50, 100, 25);
         f.add(l1);
 
-        customerEntries = service.loadCustomers(); // "U005|Elephant", ...
+        customerEntries = service.loadCustomers(); 
         customerBox = new JComboBox<>(extractNames(customerEntries));
         customerBox.setBounds(150, 50, 200, 25);
         f.add(customerBox);
@@ -61,7 +65,7 @@ public class CreateAppointment {
         l3.setBounds(30, 120, 100, 25);
         f.add(l3);
 
-        technicianEntries = service.loadTechnicians(); // "U003|Cat", ...
+        technicianEntries = service.loadTechnicians(); 
         technicianBox = new JComboBox<>(extractNames(technicianEntries));
         technicianBox.setBounds(150, 120, 200, 25);
         f.add(technicianBox);
@@ -72,7 +76,7 @@ public class CreateAppointment {
         f.add(l4);
 
         dateChooser = new JDateChooser();
-        dateChooser.setDate(new java.util.Date()); // defaults to today
+        dateChooser.setDate(new java.util.Date());
         dateChooser.setDateFormatString("yyyy-MM-dd");
         dateChooser.setBounds(150, 155, 200, 25);
         f.add(dateChooser);
@@ -82,11 +86,12 @@ public class CreateAppointment {
         l5.setBounds(30, 190, 100, 25);
         f.add(l5);
 
-        timeBox = new JComboBox<>(new String[]{
-                "09:00", "10:00", "11:00", "12:00", "14:00", "15:00", "16:00"
-        });
-        timeBox.setBounds(150, 190, 200, 25);
-        f.add(timeBox);
+        SpinnerDateModel timeModel = new SpinnerDateModel();
+        timeSpinner = new JSpinner(timeModel);
+        JSpinner.DateEditor timeEditor = new JSpinner.DateEditor(timeSpinner, "HH:mm");
+        timeSpinner.setEditor(timeEditor);
+        timeSpinner.setBounds(150, 190, 200, 25);
+        f.add(timeSpinner);
 
         // --- Duration (auto) ---
         JLabel l6 = new JLabel("Duration:");
@@ -128,7 +133,11 @@ public class CreateAppointment {
         serviceBox.addActionListener(e -> {
             String selected = serviceBox.getSelectedItem().toString();
             durationLabel.setText(selected.equals("Normal Service") ? "1 hour" : "3 hours");
+            refreshTechnicians();
         });
+        
+        dateChooser.addPropertyChangeListener("date", e -> refreshTechnicians());
+        timeSpinner.addChangeListener(e -> refreshTechnicians());
 
         // Assign button
         assignBtn.addActionListener(e -> {
@@ -137,7 +146,8 @@ public class CreateAppointment {
         	String date = dateChooser.getDate() != null ? sdf.format(dateChooser.getDate()) : "";
             String plate = plateField.getText().trim();
             String model = modelField.getText().trim();
-            String time  = timeBox.getSelectedItem().toString();
+            SimpleDateFormat timeSdf = new SimpleDateFormat("HH:mm");
+            String time = timeSdf.format(timeSpinner.getValue());
             String serviceType = serviceBox.getSelectedItem().toString();
 
             // Reset borders
@@ -180,9 +190,9 @@ public class CreateAppointment {
 
             service.saveAppointment(
                     appointmentID,
-                    customerID,      // saves U005, not "Elephant"
+                    customerID,      
                     serviceType,
-                    technicianID,    // saves U003, not "Cat"
+                    technicianID,    
                     date,
                     time,
                     duration,
@@ -199,6 +209,8 @@ public class CreateAppointment {
             f.dispose();
             new CounterStaffMenu(user);
         });
+        
+        refreshTechnicians();
 
         f.setVisible(true);
     }
@@ -218,5 +230,28 @@ public class CreateAppointment {
         if (index < 0 || index >= entries.length) return "";
         String[] parts = entries[index].split("\\|");
         return parts[0];
+    }
+    
+    private void refreshTechnicians() {
+    	String date = dateChooser.getDate() != null
+    		    ? new SimpleDateFormat("yyyy-MM-dd").format(dateChooser.getDate())
+    		    : "";
+        int duration = serviceBox.getSelectedItem().toString()
+            .equals("Normal Service") ? 1 : 3;
+        SimpleDateFormat timeSdf = new SimpleDateFormat("HH:mm");
+        String time = timeSdf.format(timeSpinner.getValue());
+
+        technicianEntries = service.loadTechnicians(); // all active technicians
+        ArrayList<String> available = new ArrayList<>();
+
+        for (String entry : technicianEntries) {
+            String techID = entry.split("\\|")[0];
+            if (service.isTechnicianAvailable(techID, date, time, duration)) {
+                available.add(entry);
+            }
+        }
+
+        technicianEntries = available.toArray(new String[0]);
+        technicianBox.setModel(new DefaultComboBoxModel<>(extractNames(technicianEntries)));
     }
 }

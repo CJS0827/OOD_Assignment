@@ -152,4 +152,29 @@ public class AppointmentService {
         } catch (Exception e) { return false; }
         return found;
     }
+    
+    public boolean isTechnicianAvailable(String technicianID, String date, String time, int duration) {
+        for (String[] appt : loadAllAppointments()) {
+            // appt[3] = technicianID, appt[4] = date, appt[5] = time, appt[6] = duration, appt[9] = status
+            if (!appt[3].equalsIgnoreCase(technicianID)) continue;
+            if (!appt[4].equalsIgnoreCase(date)) continue;
+            if (appt[9].equalsIgnoreCase("Completed")) continue;
+
+            // Check time overlap
+            int existingStart = timeToMinutes(appt[5]);
+            int existingEnd   = existingStart + (Integer.parseInt(appt[6]) * 60);
+            int newStart      = timeToMinutes(time);
+            int newEnd        = newStart + (duration * 60);
+
+            if (newStart < existingEnd && newEnd > existingStart) {
+                return false; // overlaps
+            }
+        }
+        return true;
+    }
+
+    private int timeToMinutes(String time) {
+        String[] parts = time.split(":");
+        return Integer.parseInt(parts[0]) * 60 + Integer.parseInt(parts[1]);
+    }
 }
