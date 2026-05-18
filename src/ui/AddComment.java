@@ -164,9 +164,9 @@ public class AddComment extends JFrame {
                 techCommented ? "✓ Yes" : "Not yet"
             });
 
-            // Add Counter Staff rows
-            ArrayList<String[]> staffList = customerService.getCounterStaffForAppointment(selectedApptID);
-            for (String[] staff : staffList) {
+            // Add the specific Counter Staff who created this appointment
+            String[] staff = customerService.getCounterStaffForAppointment(selectedApptID);
+            if (staff != null) {
                 boolean staffCommented = customerService.hasCommented(selectedApptID, user.getId(), staff[0]);
                 targetModel.addRow(new Object[]{
                     staff[0], staff[1], "CounterStaff",

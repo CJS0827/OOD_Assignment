@@ -206,4 +206,45 @@ public class PaymentService {
         } catch (IOException e) {}
         return userID; // fallback: return ID if not found
     }
+
+    // ─────────────────────────────────────────────
+    //  LOAD ALL PAYMENTS (for Payment Records screen)
+    // ─────────────────────────────────────────────
+
+    /**
+     * Load every payment record from Payments.txt.
+     * Each element: [PaymentID, AppointmentID, CustomerID, ServiceType, Amount, Date, Method]
+     */
+    public ArrayList<String[]> loadAllPayments() {
+        ArrayList<String[]> result = new ArrayList<>();
+        File file = new File(paymentFile);
+        if (!file.exists()) return result;
+        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] data = line.split("\\|");
+                if (data.length >= 7) result.add(data);
+            }
+        } catch (IOException e) {}
+        return result;
+    }
+
+    /**
+     * Load every appointment record as raw String arrays.
+     * Each element: [ID, CustomerID, ServiceType, TechnicianID, Date, Time, Duration, Plate, Model, Status, ...]
+     */
+    public ArrayList<String[]> loadAllAppointmentsRaw() {
+        ArrayList<String[]> result = new ArrayList<>();
+        File file = new File(appointmentFile);
+        if (!file.exists()) return result;
+        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] data = line.split("\\|");
+                if (data.length >= 10) result.add(data);
+            }
+        } catch (IOException e) {}
+        return result;
+    }
+
 }

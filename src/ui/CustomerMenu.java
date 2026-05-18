@@ -29,12 +29,18 @@ public class CustomerMenu extends JFrame {
         welcomeLabel.setBounds(120, 25, 280, 30);
         add(welcomeLabel);
 
+        JLabel roleLabel = new JLabel("[ Customer ]");
+        roleLabel.setForeground(Color.GRAY);
+        roleLabel.setBounds(180, 50, 120, 20);
+        add(roleLabel);
+
         // ── Buttons ──
         JButton btnProfile  = new JButton("Edit Profile");
         JButton btnService  = new JButton("Service History");
         JButton btnPayment  = new JButton("Payment History");
         JButton btnFeedback = new JButton("View Technician Feedback");
         JButton btnComment  = new JButton("Add Comment");
+        JButton btnMyComment = new JButton("My Comments");
         JButton btnLogout   = new JButton("Logout");
 
         // Position buttons
@@ -43,14 +49,16 @@ public class CustomerMenu extends JFrame {
         btnService .setBounds(btnX, 130, btnW, btnH);
         btnPayment .setBounds(btnX, 175, btnW, btnH);
         btnFeedback.setBounds(btnX, 220, btnW, btnH);
-        btnComment .setBounds(btnX, 265, btnW, btnH);
-        btnLogout  .setBounds(btnX, 315, btnW, 28);
+        btnComment  .setBounds(btnX, 265, btnW, btnH);
+        btnMyComment.setBounds(btnX, 310, btnW, btnH);
+        btnLogout   .setBounds(btnX, 358, btnW, 28);
 
         add(btnProfile);
         add(btnService);
         add(btnPayment);
         add(btnFeedback);
         add(btnComment);
+        add(btnMyComment);
         add(btnLogout);
 
         // ── Actions ──
@@ -77,6 +85,11 @@ public class CustomerMenu extends JFrame {
         btnComment.addActionListener(e -> {
             dispose();
             new AddComment(user);
+        });
+
+        btnMyComment.addActionListener(e -> {
+            dispose();
+            new ViewComments(user);
         });
 
         btnLogout.addActionListener(e -> {

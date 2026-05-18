@@ -76,7 +76,8 @@ public class AppointmentService {
             String time,
             int duration,
             String plate,
-            String model
+            String model,
+            String counterStaffID
     ) {
         try {
             new File("data").mkdirs();
@@ -90,7 +91,8 @@ public class AppointmentService {
                         duration + "|" +
                         plate + "|" +
                         model + "|" +
-                        "Scheduled");
+                        "Scheduled" + "|" +
+                        counterStaffID);
                 bw.newLine();
             }
         } catch (Exception e) {

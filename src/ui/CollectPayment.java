@@ -6,6 +6,9 @@ import service.PaymentService;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableRowSorter;
+import javax.swing.RowSorter;
+import javax.swing.SortOrder;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,7 +35,7 @@ public class CollectPayment extends JFrame {
     public CollectPayment(User user) {
 
         setTitle("Collect Payment");
-        setSize(900, 500);
+        setSize(900, 560);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(null);
         setLocationRelativeTo(null);
@@ -66,6 +69,21 @@ public class CollectPayment extends JFrame {
         pricePanel.add(priceInfo);
         add(pricePanel);
 
+        // ── Search bar ──
+        JLabel lblSearch = new JLabel("Search:");
+        lblSearch.setBounds(15, 95, 55, 26);
+        add(lblSearch);
+
+        JTextField txtSearch = new JTextField();
+        txtSearch.setBounds(75, 95, 220, 26);
+        add(txtSearch);
+
+        JLabel lblSearchHint = new JLabel("(by customer, service type, car plate, or date)");
+        lblSearchHint.setForeground(Color.GRAY);
+        lblSearchHint.setFont(new Font("Arial", Font.PLAIN, 11));
+        lblSearchHint.setBounds(305, 97, 360, 22);
+        add(lblSearchHint);
+
         // ── Appointment table ──
         String[] columns = {
             "Appt ID", "Customer", "Service Type", "Technician",
@@ -92,8 +110,17 @@ public class CollectPayment extends JFrame {
         for (int i = 0; i < colWidths.length; i++)
             table.getColumnModel().getColumn(i).setPreferredWidth(colWidths[i]);
 
+        // Sortable columns — click header to sort asc/desc
+        TableRowSorter<DefaultTableModel> sorter = new TableRowSorter<>(tableModel);
+        table.setRowSorter(sorter);
+
+        // Default: sort by Date (col 4) ascending
+        sorter.setSortKeys(java.util.List.of(
+            new RowSorter.SortKey(4, SortOrder.ASCENDING)
+        ));
+
         JScrollPane scrollPane = new JScrollPane(table);
-        scrollPane.setBounds(15, 95, 860, 270);
+        scrollPane.setBounds(15, 135, 860, 240);
         add(scrollPane);
 
         // ── Bottom panel: payment method + collect button ──
@@ -129,14 +156,31 @@ public class CollectPayment extends JFrame {
         // ── Load appointments ──
         loadAppointmentsIntoTable(prices);
 
+        // ── Search filter ──
+        txtSearch.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
+            void filter() {
+                String text = txtSearch.getText().trim();
+                if (text.isEmpty()) {
+                    sorter.setRowFilter(null);
+                } else {
+                    // Search across: Appt ID(0), Customer(1), ServiceType(2), Date(4), Plate(6)
+                    sorter.setRowFilter(RowFilter.regexFilter("(?i)" + text, 0, 1, 2, 4, 6));
+                }
+            }
+            public void insertUpdate(javax.swing.event.DocumentEvent e)  { filter(); }
+            public void removeUpdate(javax.swing.event.DocumentEvent e)  { filter(); }
+            public void changedUpdate(javax.swing.event.DocumentEvent e) { filter(); }
+        });
+
         // ── Row selection → update label & enable button ──
         table.getSelectionModel().addListSelectionListener(e -> {
-            int row = table.getSelectedRow();
-            if (row >= 0) {
-                String apptID   = table.getValueAt(row, 0).toString();
-                String customer = table.getValueAt(row, 1).toString();
-                String service  = table.getValueAt(row, 2).toString();
-                String amount   = table.getValueAt(row, 9).toString();
+            int viewRow = table.getSelectedRow();
+            if (viewRow >= 0) {
+                int modelRow = table.convertRowIndexToModel(viewRow);
+                String apptID   = tableModel.getValueAt(modelRow, 0).toString();
+                String customer = tableModel.getValueAt(modelRow, 1).toString();
+                String service  = tableModel.getValueAt(modelRow, 2).toString();
+                String amount   = tableModel.getValueAt(modelRow, 9).toString();
                 lblSelected.setText("Selected: " + apptID + " | " + customer +
                                     " | " + service + " | RM " + amount);
                 lblSelected.setForeground(new Color(0, 80, 0));
@@ -146,11 +190,12 @@ public class CollectPayment extends JFrame {
 
         // ── Collect payment ──
         btnCollect.addActionListener(e -> {
-            int row = table.getSelectedRow();
-            if (row < 0) {
+            int viewRow = table.getSelectedRow();
+            if (viewRow < 0) {
                 JOptionPane.showMessageDialog(this, "Please select an appointment.");
                 return;
             }
+            int row = table.convertRowIndexToModel(viewRow);
 
             String[] appt    = appointments.get(row);
             // appt: [ID, CustomerID, ServiceType, TechnicianID, Date, Time, Duration, Plate, Model, Status]

@@ -8,7 +8,7 @@ public class CounterStaffMenu {
     public CounterStaffMenu(User user) {
 
         JFrame frame = new JFrame("Counter Staff Menu");
-        frame.setSize(450, 350);
+        frame.setSize(450, 400);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(null);
         frame.setLocationRelativeTo(null);
@@ -35,8 +35,12 @@ public class CounterStaffMenu {
         btnPayment.setBounds(130, 200, 180, 30);
         frame.add(btnPayment);
 
+        JButton btnRecords = new JButton("View Payment Records");
+        btnRecords.setBounds(130, 240, 180, 30);
+        frame.add(btnRecords);
+
         JButton btnLogout = new JButton("Logout");
-        btnLogout.setBounds(130, 240, 180, 30);
+        btnLogout.setBounds(130, 280, 180, 30);
         frame.add(btnLogout);
 
         btnProfile.addActionListener(e -> {
@@ -58,6 +62,11 @@ public class CounterStaffMenu {
         btnPayment.addActionListener(e -> {
             frame.dispose();
             new CollectPayment(user);
+        });
+
+        btnRecords.addActionListener(e -> {
+            frame.dispose();
+            new PaymentRecords(user);
         });
 
         btnLogout.addActionListener(e -> {

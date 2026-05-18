@@ -200,27 +200,29 @@ public class CustomerService {
     }
 
     /**
-     * Get the counter staff ID assigned to an appointment.
-     * Since counter staff create appointments, we look up who created it
-     * by checking the Appointments file. If not stored, return a default.
-     *
-     * NOTE: Your Appointments.txt doesn't currently store counter staff ID.
-     * This helper returns all active counter staff so the customer can comment on them.
+     * Get the counter staff who created a specific appointment.
+     * Reads field index 10 (CounterStaffID) from Appointments.txt.
+     * Returns [counterStaffID, username] or null if not found.
      */
-    public ArrayList<String[]> getCounterStaffForAppointment(String appointmentID) {
-        // Returns all active CounterStaff as [ID, Username]
-        ArrayList<String[]> result = new ArrayList<>();
-        try (BufferedReader br = new BufferedReader(new FileReader(userFile))) {
+    public String[] getCounterStaffForAppointment(String appointmentID) {
+        // Step 1: find the counter staff ID from the appointment record
+        String counterStaffID = null;
+        try (BufferedReader br = new BufferedReader(new FileReader(appointmentFile))) {
             String line;
             while ((line = br.readLine()) != null) {
                 String[] data = line.split("\\|");
-                if (data.length >= 9
-                        && data[7].equalsIgnoreCase("CounterStaff")
-                        && data[8].equalsIgnoreCase("Active")) {
-                    result.add(new String[]{data[0], data[1]});
+                // New format has 11 fields: index 10 = CounterStaffID
+                if (data.length >= 11 && data[0].equalsIgnoreCase(appointmentID)) {
+                    counterStaffID = data[10];
+                    break;
                 }
             }
         } catch (IOException e) {}
-        return result;
+
+        if (counterStaffID == null) return null;
+
+        // Step 2: look up their username
+        String username = getUsernameById(counterStaffID);
+        return new String[]{counterStaffID, username};
     }
 }
