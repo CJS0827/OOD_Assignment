@@ -1,6 +1,8 @@
 package service;
 
 import model.User;
+import model.InvalidInputException;
+import model.DuplicateRecordException;
 import java.io.*;
 import java.util.ArrayList;
 
@@ -107,5 +109,55 @@ public class StaffManagementService {
             }
         }
         return false;
+    }
+
+    // Validates and creates a new staff member.
+    // Throws custom exceptions when business rules are violated.
+    // Demonstrates Exception Handling OOP concept (Lecture 9.0)
+    public User addStaff(String username, String password, String phone,
+                         String email, String role, ArrayList<User> allUsers)
+            throws InvalidInputException, DuplicateRecordException {
+
+        // Validate inputs
+        if (username == null || username.trim().length() < 3) {
+            throw new InvalidInputException("username",
+                "Username must be at least 3 characters.");
+        }
+
+        if (password == null || password.length() < 4) {
+            throw new InvalidInputException("password",
+                "Password must be at least 4 characters.");
+        }
+
+        if (!model.Manager.isValidPhone(phone)) {
+            throw new InvalidInputException("phone",
+                "Phone must be 10–12 digits with no spaces or symbols.");
+        }
+
+        if (!model.Manager.isValidEmail(email)) {
+            throw new InvalidInputException("email",
+                "Email format is invalid. Example: name@domain.com");
+        }
+
+        // Check uniqueness
+        if (isUsernameExists(allUsers, username)) {
+            throw new DuplicateRecordException(
+                "Username '" + username + "' is already in use.");
+        }
+
+        if (isEmailExists(allUsers, email)) {
+            throw new DuplicateRecordException(
+                "Email '" + email + "' is already in use.");
+        }
+
+        // All validation passed — create and persist
+        String id = getNextStaffId(allUsers);
+        User newStaff = new User(
+            id, username, password, phone, email,
+            "N/A", "N/A", role, "Active"
+        );
+        allUsers.add(newStaff);
+        saveAllUsers(allUsers);
+        return newStaff;
     }
 }
