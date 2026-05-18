@@ -1,6 +1,7 @@
 package ui;
 
 import model.User;
+import model.Manager;
 import service.StaffManagementService;
 
 import java.util.ArrayList;
@@ -135,9 +136,35 @@ public class ManageStaffWindow {
                 String email = tfEmail.getText().trim();
                 String role = cmbRole.getSelectedItem().toString();
 
-                // Input validation
+             // Input validation: empty fields
                 if (username.isEmpty() || password.isEmpty() || phone.isEmpty() || email.isEmpty()) {
                     JOptionPane.showMessageDialog(frame, "Please fill in all fields.");
+                    return;
+                }
+
+                // Input validation: username length
+                if (username.length() < 3) {
+                    JOptionPane.showMessageDialog(frame, "Username must be at least 3 characters.");
+                    return;
+                }
+
+                // Input validation: password strength
+                if (password.length() < 4) {
+                    JOptionPane.showMessageDialog(frame, "Password must be at least 4 characters.");
+                    return;
+                }
+
+                // Input validation: phone format (using static method from Manager class)
+                if (!Manager.isValidPhone(phone)) {
+                    JOptionPane.showMessageDialog(frame,
+                        "Invalid phone number.\nPhone must be 10–12 digits with no spaces or symbols.");
+                    return;
+                }
+
+                // Input validation: email format (using static method from Manager class)
+                if (!Manager.isValidEmail(email)) {
+                    JOptionPane.showMessageDialog(frame,
+                        "Invalid email address.\nExample: name@domain.com");
                     return;
                 }
 
@@ -195,7 +222,7 @@ public class ManageStaffWindow {
             }
         });
 
-        // ActionListener: Update staff details (CRUD - Update)
+     // ActionListener: Update staff details (CRUD - Update)
         btnUpdate.addActionListener(e -> {
             int row = table.getSelectedRow();
             if (row < 0) {
@@ -204,9 +231,25 @@ public class ManageStaffWindow {
             }
 
             try {
+                String newPhone = tfPhone.getText().trim();
+                String newEmail = tfEmail.getText().trim();
+
+                // Input validation using static methods from Manager class
+                if (!Manager.isValidPhone(newPhone)) {
+                    JOptionPane.showMessageDialog(frame,
+                        "Invalid phone number.\nPhone must be 10–12 digits.");
+                    return;
+                }
+
+                if (!Manager.isValidEmail(newEmail)) {
+                    JOptionPane.showMessageDialog(frame,
+                        "Invalid email address.\nExample: name@domain.com");
+                    return;
+                }
+
                 User staff = staffList.get(row);
-                staff.setPhone(tfPhone.getText().trim());
-                staff.setEmail(tfEmail.getText().trim());
+                staff.setPhone(newPhone);
+                staff.setEmail(newEmail);
 
                 // Update table display
                 tableModel.setValueAt(staff.getPhone(), row, 3);
