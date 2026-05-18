@@ -51,6 +51,19 @@ public class Manager extends User {
         return email != null && email.matches("^[\\w.-]+@[\\w.-]+\\.[a-zA-Z]{2,}$");
     }
 
+ // Polymorphism: Override abstract method from Person with Manager-specific behavior
+    @Override
+    public String getRoleDescription() {
+        return "Manager of " + department + " department, managing "
+                + employeesManagedCount + " employees";
+    }
+
+    // Polymorphism: Override abstract method from Person
+    @Override
+    public String getDisplayInfo() {
+        return "Manager: " + getUsername() + " [" + department + "]";
+    }
+
     // Override toString() for manager-specific display (Polymorphism)
     @Override
     public String toString() {
