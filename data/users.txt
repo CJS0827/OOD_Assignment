@@ -7,3 +7,4 @@ U006|Darren|1234|0123454321|darren@gmail.com|What is your favourite color?|red|C
 U007|John|123|0123456677|john@gmail.com|N/A|N/A|Customer|Active
 U008|Jacky|1234|0192288567|jacky@gmail.com|N/A|N/A|Customer|Active
 U009|Luffy|1234|0156723843|luffy@gmail.com|N/A|N/A|Customer|Active
+U010|TestStaff|1234|0123456789|teststaff@gmail.com|N/A|N/A|Technician|Active
