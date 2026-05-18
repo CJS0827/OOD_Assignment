@@ -13,6 +13,7 @@ public class ViewReportsWindow {
 
     // Encapsulation: private file path
     private final String APPOINTMENTS_FILE = "data/Appointments.txt";
+    private final String USERS_FILE = "data/users.txt";
 
     public ViewReportsWindow(User manager) {
 
@@ -79,6 +80,26 @@ public class ViewReportsWindow {
         frame.setVisible(true);
     }
 
+    
+ // Helper: Resolve user ID to username for readable display
+    private String resolveUserName(String userId) {
+        File file = new File(USERS_FILE);
+        if (!file.exists()) return userId;
+
+        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] data = line.split("\\|");
+                if (data.length >= 2 && data[0].equalsIgnoreCase(userId)) {
+                    return data[1]; // username
+                }
+            }
+        } catch (IOException e) {
+            // fallback to ID
+        }
+        return userId;
+    }
+    
     // File I/O: BufferedReader with String.split() to parse appointments
     private ArrayList<String[]> loadAppointments() {
         ArrayList<String[]> appointments = new ArrayList<>();
@@ -115,8 +136,11 @@ public class ViewReportsWindow {
 
         for (String[] appt : appointments) {
             model.addRow(new Object[]{
-                appt[0], appt[1], appt[2], appt[3], appt[4],
-                appt[5], appt[6], appt[7], appt[8], appt[9]
+                appt[0],                       // ID
+                resolveUserName(appt[1]),      // Customer (was ID)
+                appt[2],                       // Service Type
+                resolveUserName(appt[3]),      // Technician (was ID)
+                appt[4], appt[5], appt[6], appt[7], appt[8], appt[9]
             });
         }
     }
@@ -133,8 +157,11 @@ public class ViewReportsWindow {
             // Filter: Only show completed appointments
             if (appt[9].equalsIgnoreCase("Completed")) {
                 model.addRow(new Object[]{
-                    appt[0], appt[1], appt[2], appt[3], appt[4],
-                    appt[5], appt[6], appt[8], appt[9]
+                    appt[0],
+                    resolveUserName(appt[1]),      // Customer
+                    appt[2],
+                    resolveUserName(appt[3]),      // Technician
+                    appt[4], appt[5], appt[6], appt[8], appt[9]
                 });
             }
         }
@@ -146,7 +173,7 @@ public class ViewReportsWindow {
         }
     }
 
-    // Abstraction: Display payment history per appointment
+ // Abstraction: Display payment history per appointment
     private void displayPaymentHistory(DefaultTableModel model, ArrayList<String[]> appointments) {
         model.setRowCount(0);
         model.setColumnIdentifiers(new String[]{
@@ -159,8 +186,9 @@ public class ViewReportsWindow {
             String paymentStatus = appt[9].equalsIgnoreCase("Completed") ? "Paid" : "Pending";
 
             model.addRow(new Object[]{
-                appt[0], appt[1], appt[2], appt[4],
-                appt[6], appt[9], paymentStatus
+                appt[0],
+                resolveUserName(appt[1]),      // Customer (was ID)
+                appt[2], appt[4], appt[6], appt[9], paymentStatus
             });
         }
     }
