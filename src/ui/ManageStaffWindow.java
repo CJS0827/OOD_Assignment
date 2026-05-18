@@ -3,6 +3,8 @@ package ui;
 import model.User;
 import model.Manager;
 import service.StaffManagementService;
+import model.InvalidInputException;
+import model.DuplicateRecordException;
 
 import java.util.ArrayList;
 import javax.swing.*;
@@ -127,83 +129,51 @@ public class ManageStaffWindow {
         btnDeactivate.setBackground(defaultBtnColor);
 
         // ActionListener: Add new staff (CRUD - Create)
+        // Demonstrates handling multiple custom exceptions (Lecture 9.0)
         btnAdd.addActionListener(e -> {
-            // Robustness: try-catch for input validation
+            String username = tfUsername.getText().trim();
+            String password = tfPassword.getText().trim();
+            String phone = tfPhone.getText().trim();
+            String email = tfEmail.getText().trim();
+            String role = cmbRole.getSelectedItem().toString();
+
+            // Empty-field check stays in UI (no need to throw for this)
+            if (username.isEmpty() || password.isEmpty() || phone.isEmpty() || email.isEmpty()) {
+                JOptionPane.showMessageDialog(frame, "Please fill in all fields.");
+                return;
+            }
+
+            // Exception Handling: catch from MOST specific to MOST general
             try {
-                String username = tfUsername.getText().trim();
-                String password = tfPassword.getText().trim();
-                String phone = tfPhone.getText().trim();
-                String email = tfEmail.getText().trim();
-                String role = cmbRole.getSelectedItem().toString();
-
-             // Input validation: empty fields
-                if (username.isEmpty() || password.isEmpty() || phone.isEmpty() || email.isEmpty()) {
-                    JOptionPane.showMessageDialog(frame, "Please fill in all fields.");
-                    return;
-                }
-
-                // Input validation: username length
-                if (username.length() < 3) {
-                    JOptionPane.showMessageDialog(frame, "Username must be at least 3 characters.");
-                    return;
-                }
-
-                // Input validation: password strength
-                if (password.length() < 4) {
-                    JOptionPane.showMessageDialog(frame, "Password must be at least 4 characters.");
-                    return;
-                }
-
-                // Input validation: phone format (using static method from Manager class)
-                if (!Manager.isValidPhone(phone)) {
-                    JOptionPane.showMessageDialog(frame,
-                        "Invalid phone number.\nPhone must be 10–12 digits with no spaces or symbols.");
-                    return;
-                }
-
-                // Input validation: email format (using static method from Manager class)
-                if (!Manager.isValidEmail(email)) {
-                    JOptionPane.showMessageDialog(frame,
-                        "Invalid email address.\nExample: name@domain.com");
-                    return;
-                }
-
-                // Validate username uniqueness
-                if (service.isUsernameExists(allUsers, username)) {
-                    JOptionPane.showMessageDialog(frame, "Username already exists!");
-                    return;
-                }
-
-                // Validate email uniqueness
-                if (service.isEmailExists(allUsers, email)) {
-                    JOptionPane.showMessageDialog(frame, "Email already exists!");
-                    return;
-                }
-
-                // Auto-generate staff ID
-                String id = service.getNextStaffId(allUsers);
-
-                // Create new User object
-                User newStaff = new User(
-                    id, username, password, phone, email,
-                    "N/A", "N/A", role, "Active"
-                );
-
-                // Add to collections and save to file
-                allUsers.add(newStaff);
+                User newStaff = service.addStaff(username, password, phone, email, role, allUsers);
                 staffList.add(newStaff);
-                service.saveAllUsers(allUsers);
 
                 // Update JTable display
                 tableModel.addRow(new Object[]{
-                    id, username, role, phone, email, "Active"
+                    newStaff.getId(), newStaff.getUsername(), newStaff.getRole(),
+                    newStaff.getPhone(), newStaff.getEmail(), newStaff.getStatus()
                 });
 
                 JOptionPane.showMessageDialog(frame, "Staff added successfully!");
                 clearFields(tfUsername, tfPassword, tfPhone, tfEmail);
 
+            } catch (InvalidInputException ex) {
+                // Custom checked exception: tell user which field is wrong
+                JOptionPane.showMessageDialog(frame,
+                    "Invalid " + ex.getFieldName() + ": " + ex.getMessage(),
+                    "Validation Error", JOptionPane.WARNING_MESSAGE);
+
+            } catch (DuplicateRecordException ex) {
+                // Custom checked exception: tell user the record already exists
+                JOptionPane.showMessageDialog(frame,
+                    ex.getMessage(),
+                    "Duplicate Record", JOptionPane.WARNING_MESSAGE);
+
             } catch (Exception ex) {
-                JOptionPane.showMessageDialog(frame, "Error adding staff: " + ex.getMessage());
+                // Polymorphic reference: catches anything else (Lecture 9.0 slide 12)
+                JOptionPane.showMessageDialog(frame,
+                    "Unexpected error: " + ex.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
 
