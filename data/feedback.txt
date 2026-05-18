@@ -1,2 +1,20 @@
 A001|Elephant|5|Great service, very professional|2026-04-10
 A002|Darren|4|Good work but took a bit long|2026-04-10
+A003|Darren|5|Excellent diagnostics and very thorough|2026-04-10
+A004|John|4|Reasonable price and quick turnaround|2026-04-11
+A005|Jacky|5|Cat was extremely helpful and patient|2026-04-11
+A006|Luffy|3|Service was okay but waiting area was crowded|2026-04-12
+A007|Siti|4|Friendly staff and clean facility|2026-04-12
+A008|Tan|5|Highly recommend, will return for future services|2026-04-13
+A009|Nurul|5|Outstanding service from Cat as always|2026-04-13
+A010|Ahmad|4|Good value for money|2026-04-14
+A011|Chen|3|Decent service but communication could improve|2026-04-14
+A012|Vijay|5|Top notch work, very satisfied|2026-04-15
+A013|Fatimah|4|Professional and efficient|2026-04-15
+A014|Elephant|5|Returning customer, never disappointed|2026-04-16
+A015|Darren|4|Reliable as always|2026-04-16
+A016|Raj|5|Best service centre in town|2026-04-17
+A017|Lim|3|Average, expected more for the price|2026-04-17
+A005|Jacky|4|Follow-up: car is running smoothly|2026-04-15
+A009|Nurul|5|Excellent follow-up from technician Cat|2026-04-15
+A012|Vijay|4|Great after-service support|2026-04-18
