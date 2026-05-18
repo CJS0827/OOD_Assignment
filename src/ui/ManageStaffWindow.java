@@ -243,17 +243,38 @@ public class ManageStaffWindow {
             staff.setStatus("Active");
             tableModel.setValueAt("Active", row, 5);
             service.saveAllUsers(allUsers);
+            JOptionPane.showMessageDialog(frame,
+                "Staff member '" + staff.getUsername() + "' has been activated.");
         });
 
         // ActionListener: Deactivate staff (logical delete - CRUD Delete)
+        // Asks for confirmation before destructive action (UX best practice)
         btnDeactivate.addActionListener(e -> {
             int row = table.getSelectedRow();
             if (row < 0) return;
 
             User staff = staffList.get(row);
+
+            // Confirmation dialog: prevent accidental deactivation
+            int choice = JOptionPane.showConfirmDialog(
+                frame,
+                "Are you sure you want to deactivate staff member '" + staff.getUsername() + "'?\n\n"
+                    + "The user will no longer be able to log in.\n"
+                    + "You can re-activate them later if needed.",
+                "Confirm Deactivation",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE
+            );
+
+            if (choice != JOptionPane.YES_OPTION) {
+                return; // user cancelled
+            }
+
             staff.setStatus("Inactive");
             tableModel.setValueAt("Inactive", row, 5);
             service.saveAllUsers(allUsers);
+            JOptionPane.showMessageDialog(frame,
+                "Staff member '" + staff.getUsername() + "' has been deactivated.");
         });
 
         // Enable/disable activate/deactivate based on selection
