@@ -9,7 +9,6 @@ import com.toedter.calendar.JDateChooser;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.SpinnerDateModel;
 
 public class CreateAppointment {
 
@@ -17,7 +16,8 @@ public class CreateAppointment {
     private JComboBox<String> serviceBox;
     private JComboBox<String> technicianBox;
     
-    private JSpinner timeSpinner;
+    private JSpinner hourSpinner;
+    private JSpinner minuteSpinner;
 
     private JDateChooser dateChooser;
     private JTextField plateField;
@@ -86,12 +86,24 @@ public class CreateAppointment {
         l5.setBounds(30, 190, 100, 25);
         f.add(l5);
 
-        SpinnerDateModel timeModel = new SpinnerDateModel();
-        timeSpinner = new JSpinner(timeModel);
-        JSpinner.DateEditor timeEditor = new JSpinner.DateEditor(timeSpinner, "HH:mm");
-        timeSpinner.setEditor(timeEditor);
-        timeSpinner.setBounds(150, 190, 200, 25);
-        f.add(timeSpinner);
+        // SpinnerNumberModel for hour (0-23) and minute in 15-min steps
+        hourSpinner   = new JSpinner(new SpinnerNumberModel(8, 0, 23, 1));
+        minuteSpinner = new JSpinner(new SpinnerNumberModel(0, 0, 45, 15));
+
+        // Format hour and minute to always show 2 digits
+        hourSpinner.setEditor(new JSpinner.NumberEditor(hourSpinner, "00"));
+        minuteSpinner.setEditor(new JSpinner.NumberEditor(minuteSpinner, "00"));
+
+        hourSpinner.setBounds(150, 190, 80, 25);
+        minuteSpinner.setBounds(240, 190, 80, 25);
+
+        JLabel colonLabel = new JLabel(":");
+        colonLabel.setBounds(232, 190, 10, 25);
+
+        f.add(colonLabel);
+        f.add(hourSpinner);
+        f.add(minuteSpinner);
+
 
         // --- Duration (auto) ---
         JLabel l6 = new JLabel("Duration:");
@@ -137,7 +149,8 @@ public class CreateAppointment {
         });
         
         dateChooser.addPropertyChangeListener("date", e -> refreshTechnicians());
-        timeSpinner.addChangeListener(e -> refreshTechnicians());
+        hourSpinner.addChangeListener(e -> refreshTechnicians());
+        minuteSpinner.addChangeListener(e -> refreshTechnicians());
 
         // Assign button
         assignBtn.addActionListener(e -> {
@@ -146,8 +159,9 @@ public class CreateAppointment {
         	String date = dateChooser.getDate() != null ? sdf.format(dateChooser.getDate()) : "";
             String plate = plateField.getText().trim();
             String model = modelField.getText().trim();
-            SimpleDateFormat timeSdf = new SimpleDateFormat("HH:mm");
-            String time = timeSdf.format(timeSpinner.getValue());
+            String time = String.format("%02d:%02d",
+                (int) hourSpinner.getValue(),
+                (int) minuteSpinner.getValue());
             String serviceType = serviceBox.getSelectedItem().toString();
 
             // Reset borders
@@ -190,14 +204,15 @@ public class CreateAppointment {
 
             service.saveAppointment(
                     appointmentID,
-                    customerID,      
+                    customerID,
                     serviceType,
-                    technicianID,    
+                    technicianID,
                     date,
                     time,
                     duration,
                     plate,
-                    model
+                    model,
+                    user.getId()  // record which counter staff created this appointment
             );
 
             JOptionPane.showMessageDialog(f, "Appointment created successfully!\nID: " + appointmentID);
@@ -238,8 +253,9 @@ public class CreateAppointment {
     		    : "";
         int duration = serviceBox.getSelectedItem().toString()
             .equals("Normal Service") ? 1 : 3;
-        SimpleDateFormat timeSdf = new SimpleDateFormat("HH:mm");
-        String time = timeSdf.format(timeSpinner.getValue());
+        String time = String.format("%02d:%02d",
+            (int) hourSpinner.getValue(),
+            (int) minuteSpinner.getValue());
 
         technicianEntries = service.loadTechnicians(); // all active technicians
         ArrayList<String> available = new ArrayList<>();
