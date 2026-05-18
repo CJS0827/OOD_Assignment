@@ -3,6 +3,7 @@ package service;
 import java.io.*;
 import java.util.ArrayList;
 import model.User;
+import model.Manager;
 
 public class AuthService {
 
@@ -22,7 +23,21 @@ public class AuthService {
                 if (user.length >= 9 &&
                     user[1].equals(username) &&
                     user[2].equals(password)) {
-
+                	
+                	if (user[7].equalsIgnoreCase("Manager")) {
+						return new Manager(
+							user[0],
+							user[1],
+							user[2],
+							user[3],
+							user[4],
+							user[5],
+							user[6],
+							user[7],
+							user[8]
+						);
+					}
+                	
                 	return new User(
                     	user[0],
                     	user[1],
