@@ -38,20 +38,26 @@ public class CounterStaffMenu {
         JButton btnLogout = new JButton("Logout");
         btnLogout.setBounds(130, 240, 180, 30);
         frame.add(btnLogout);
-        
+
         btnProfile.addActionListener(e -> {
-        	frame.dispose();
-        	new EditProfile(user);
+            frame.dispose();
+            new EditProfile(user);
         });
-        
+
         btnCustomer.addActionListener(e -> {
-        	frame.dispose();
-        	new ManageCustomer(user);
+            frame.dispose();
+            new ManageCustomer(user);
         });
-        
+
         btnAppointment.addActionListener(e -> {
-        	frame.dispose();
-        	new CreateAppointment(user);
+            frame.dispose();
+            new CreateAppointment(user);
+        });
+
+        // ── NOW WIRED: opens CollectPayment screen ──
+        btnPayment.addActionListener(e -> {
+            frame.dispose();
+            new CollectPayment(user);
         });
 
         btnLogout.addActionListener(e -> {
