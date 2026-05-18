@@ -1,3 +1,4 @@
-A001|Elephant|Normal Service|Cat|2026-04-10|09:00|1|ABC1111|TOYOTA|Scheduled
-A002|Darren|Major Service|Cat|2026-04-10|11:00|3|DEF2222|PERODUA|Scheduled
-A003|Darren|Major Service|Cat|2026-04-10|12:00|3|WWW9191|BMW|Scheduled
+A001|U005|Normal Service|U003|2026-04-10|09:00|1|ABC1111|TOYOTA|Scheduled
+A002|U006|Major Service|U003|2026-04-10|11:00|3|DEF2222|PERODUA|Scheduled
+A003|U006|Major Service|U003|2026-04-10|12:00|3|WWW9191|BMW|Scheduled
+A004|U007|Major Service|U003|2026-06-10|12:00|3|ABC1111|Cherry|Scheduled
