@@ -1,10 +1,30 @@
 U001|Apple|1234|0123456789|apple@gmail.com|What is your pet's name?|lucky|Manager|Active
-U002|Banana|1234|0123456789|banana@gmail.com|What is your pet's name?|blue|CounterStaff|Active
-U003|Cat|1234|0112223333|cat@gmail.com|What is your favourite food?|fish|Technician|Active
-U004|Dog|1234|0129876543|dog@gmail.com|What city were you born in?|kl|Customer|Inactive
-U005|Elephant|1234|0142345363|elephant@gmail.com|What is your pet's name?|Lucky|Customer|Active
-U006|Darren|1234|0123454321|darren@gmail.com|What is your favourite color?|red|Customer|Active
-U007|John|1234|0123456677|john@gmail.com|N/A|N/A|Customer|Active
-U008|Jacky|1234|0192288567|jacky@gmail.com|N/A|N/A|Customer|Active
-U009|Luffy|1234|0156723843|luffy@gmail.com|N/A|N/A|Customer|Active
-U010|Elsa|1234|0123334568|elsa@gmail.com|What city were you born in?|USA|Technician|Active
+U002|Sarah|1234|0123334567|sarah@apu.edu.my|What is your favourite food?|sushi|Manager|Active
+U003|Marcus|1234|0119876543|marcus@apu.edu.my|What city were you born in?|kuala lumpur|Manager|Active
+U004|Banana|1234|0123456789|banana@gmail.com|What is your pet's name?|blue|CounterStaff|Active
+U005|Priya|1234|0162223344|priya@apu.edu.my|What is your favourite color?|teal|CounterStaff|Active
+U006|Wei Ming|1234|0173344556|weiming@apu.edu.my|What is your favourite food?|nasi lemak|CounterStaff|Active
+U007|Aisha|1234|0184455667|aisha@apu.edu.my|What is your pet's name?|simba|CounterStaff|Active
+U008|David|1234|0195566778|david@apu.edu.my|What city were you born in?|penang|CounterStaff|Inactive
+U009|Cat|1234|0112223333|cat@gmail.com|What is your favourite food?|fish|Technician|Active
+U010|Ravi|1234|0123455667|ravi@apu.edu.my|What is your pet's name?|max|Technician|Active
+U011|Hassan|1234|0167788990|hassan@apu.edu.my|What is your favourite color?|green|Technician|Active
+U012|Mei Lin|1234|0178899001|meilin@apu.edu.my|What is your favourite food?|roti canai|Technician|Active
+U013|Kumar|1234|0189900112|kumar@apu.edu.my|What city were you born in?|ipoh|Technician|Active
+U014|Lee|1234|0190011223|lee@apu.edu.my|What is your pet's name?|rex|Technician|Inactive
+U015|Elephant|1234|0142345363|elephant@gmail.com|What is your pet's name?|Lucky|Customer|Active
+U016|Darren|1234|0123454321|darren@gmail.com|What is your favourite color?|red|Customer|Active
+U017|John|123|0123456677|john@gmail.com|N/A|N/A|Customer|Active
+U018|Jacky|1234|0192288567|jacky@gmail.com|N/A|N/A|Customer|Active
+U019|Luffy|1234|0156723843|luffy@gmail.com|N/A|N/A|Customer|Active
+U020|Siti|1234|0167891234|siti@gmail.com|What is your pet's name?|whiskers|Customer|Active
+U021|Tan|1234|0178902345|tan.kh@gmail.com|What is your favourite food?|laksa|Customer|Active
+U022|Nurul|1234|0189013456|nurul@gmail.com|What city were you born in?|johor|Customer|Active
+U023|Ahmad|1234|0190124567|ahmad@gmail.com|What is your favourite color?|blue|Customer|Active
+U024|Chen|1234|0181235678|chen.li@gmail.com|What is your pet's name?|coco|Customer|Active
+U025|Vijay|1234|0172346789|vijay@gmail.com|What is your favourite food?|biryani|Customer|Active
+U026|Fatimah|1234|0163457890|fatimah@gmail.com|N/A|N/A|Customer|Active
+U027|Wong|1234|0154568901|wong@gmail.com|N/A|N/A|Customer|Inactive
+U028|Raj|1234|0145679012|raj@gmail.com|N/A|N/A|Customer|Active
+U029|Lim|1234|0136780123|lim@gmail.com|What is your favourite color?|yellow|Customer|Active
+U030|Maya|1234|0127891234|maya@gmail.com|What is your pet's name?|bella|Customer|Active
