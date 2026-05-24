@@ -2,6 +2,7 @@ package ui;
 
 import model.User;
 import service.ReportService;
+import service.PaymentService;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -22,6 +23,7 @@ public class ViewReportsWindow {
     private final String APPOINTMENTS_FILE = "data/Appointments.txt";
     private final String USERS_FILE = "data/users.txt";
     private final ReportService reportService = new ReportService();
+    private final PaymentService paymentService = new PaymentService();
 
     // Dashboard stat labels — kept as fields so we can refresh them later
     private JLabel lblRevenueValue;
@@ -298,7 +300,7 @@ public class ViewReportsWindow {
 
         for (String[] appt : appointments) {
             // Determine payment status based on appointment status
-            String paymentStatus = appt[9].equalsIgnoreCase("Completed") ? "Paid" : "Pending";
+        	String paymentStatus = paymentService.getPaymentStatus(appt[0]);
 
             model.addRow(new Object[]{
                 appt[0],

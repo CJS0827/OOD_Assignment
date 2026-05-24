@@ -206,6 +206,24 @@ public class PaymentService {
         } catch (IOException e) {}
         return userID; // fallback: return ID if not found
     }
+    
+ // Returns "Paid (Cash)", "Paid (Card)", or "Unpaid"
+    public String getPaymentStatus(String appointmentID) {
+        File file = new File(paymentFile);
+        if (!file.exists()) return "Unpaid";
+
+        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] data = line.split("\\|");
+                if (data.length >= 7 && data[1].equalsIgnoreCase(appointmentID)) {
+                    return "Paid (" + data[6].trim() + ")"; // e.g. "Paid (Cash)"
+                }
+            }
+        } catch (IOException e) {}
+
+        return "Unpaid";
+    }
 
     // ─────────────────────────────────────────────
     //  LOAD ALL PAYMENTS (for Payment Records screen)
