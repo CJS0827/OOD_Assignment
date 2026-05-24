@@ -50,7 +50,7 @@ public class PaymentService {
                 String[] data = line.split("\\|");
                 if (data.length >= 2) {
                     try {
-                        prices.put(data[0].trim(), Double.parseDouble(data[1].trim()));
+                        prices.put(data[0].trim(), Double.parseDouble(data[2].trim()));
                     } catch (NumberFormatException ignored) {}
                 }
             }
