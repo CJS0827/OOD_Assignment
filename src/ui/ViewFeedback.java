@@ -39,7 +39,7 @@ public class ViewFeedback extends JFrame {
         add(btnBack);
 
         // ── Table ──
-        String[] columns = {"Feedback ID", "Appointment ID", "Technician", "Feedback Comment", "Date"};
+        String[] columns = {"Feedback ID", "Appointment ID", "Technician", "Rating", "Comment", "Date"};
         DefaultTableModel tableModel = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int col) {
@@ -53,7 +53,7 @@ public class ViewFeedback extends JFrame {
         table.setRowHeight(24);
 
         // Allow comment column to wrap by setting a larger preferred width
-        int[] colWidths = {90, 110, 100, 280, 90};
+        int[] colWidths = {90, 110, 100, 60, 260, 90};
         for (int i = 0; i < colWidths.length; i++) {
             table.getColumnModel().getColumn(i).setPreferredWidth(colWidths[i]);
         }
@@ -93,14 +93,14 @@ public class ViewFeedback extends JFrame {
             add(noData);
         } else {
             for (String[] fb : feedbacks) {
-                // fb: [FeedbackID, AppointmentID, TechnicianID, Comment, Date]
                 String techName = customerService.getUsernameById(fb[2]);
                 tableModel.addRow(new Object[]{
                     fb[0],     // Feedback ID
                     fb[1],     // Appointment ID
                     techName,  // Technician name
-                    fb[3],     // Comment
-                    fb[4]      // Date
+                    fb[3],     // Rating
+                    fb[4],      // Comment
+                    fb[5]		// Date
                 });
             }
         }
@@ -109,10 +109,12 @@ public class ViewFeedback extends JFrame {
         table.getSelectionModel().addListSelectionListener(e -> {
             int row = table.getSelectedRow();
             if (row >= 0) {
-                String techName  = table.getValueAt(row, 2).toString();
-                String comment   = table.getValueAt(row, 3).toString();
-                String date      = table.getValueAt(row, 4).toString();
-                detailArea.setText("[" + date + "] " + techName + ": " + comment);
+                String techName = table.getValueAt(row, 2).toString();
+                String rating   = table.getValueAt(row, 3).toString();
+                String comment  = table.getValueAt(row, 4).toString();
+                String date     = table.getValueAt(row, 5).toString();
+                detailArea.setText("[" + date + "] " + techName +
+                    " (Rating: " + rating + "/5): " + comment);
             }
         });
 

@@ -98,19 +98,19 @@ public class TechnicianService {
 
     /** Append a new feedback row to Feedbacks.txt. */
     public boolean saveFeedback(String appointmentID, String technicianID,
-                                String comment, String date) {
-        new File("data").mkdirs();
-        File file = new File(FEEDBACK_FILE);
-        String id = nextFeedbackID(file);
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(file, true))) {
-            bw.write(id + "|" + appointmentID + "|" + technicianID + "|" + comment + "|" + date);
-            bw.newLine();
-            return true;
-        } catch (IOException e) {
-            System.out.println("Error saving feedback: " + e.getMessage());
-            return false;
-        }
-    }
+            					int rating, String comment, String date) {
+		new File("data").mkdirs();
+		File file = new File(FEEDBACK_FILE);
+		String id = nextFeedbackID(file);
+		try (BufferedWriter bw = new BufferedWriter(new FileWriter(file, true))) {
+			bw.write(id + "|" + appointmentID + "|" + technicianID + "|" + rating + "|" + comment + "|" + date);
+			bw.newLine();
+			return true;
+		} catch (IOException e) {
+			System.out.println("Error saving feedback: " + e.getMessage());
+			return false;
+		}
+	}
 
     /** All feedbacks written by this technician. */
     public ArrayList<String[]> getFeedbacksByTechnician(String technicianID) {

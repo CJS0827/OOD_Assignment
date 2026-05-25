@@ -102,17 +102,15 @@ public class AppointmentService {
 
     // Load all appointments as raw string arrays for display
     public ArrayList<String[]> loadAllAppointments() {
-        ArrayList<String[]> list = new ArrayList<>();
-        File file = new File(appointmentFile);
-        if (!file.exists()) return list;
-        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+        ArrayList<String[]> result = new ArrayList<>();
+        try (BufferedReader br = new BufferedReader(new FileReader(appointmentFile))) {
             String line;
             while ((line = br.readLine()) != null) {
                 String[] data = line.split("\\|");
-                if (data.length >= 10) list.add(data);
+                if (data.length >= 10) result.add(data);
             }
-        } catch (Exception e) {}
-        return list;
+        } catch (IOException e) {}
+        return result;
     }
 
     // Load appointments for a specific user ID (customer or technician)
@@ -138,21 +136,17 @@ public class AppointmentService {
                 String[] data = line.split("\\|");
                 if (data.length >= 10 && data[0].equalsIgnoreCase(appointmentID)) {
                     data[9] = newStatus;
-                    lines.add(String.join("|", data));
+                    line = String.join("|", data);
                     found = true;
-                } else {
-                    lines.add(line);
                 }
+                lines.add(line);
             }
-        } catch (Exception e) { return false; }
-
+        } catch (IOException e) { return false; }
+        if (!found) return false;
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(file))) {
-            for (String l : lines) {
-                bw.write(l);
-                bw.newLine();
-            }
-        } catch (Exception e) { return false; }
-        return found;
+            for (String l : lines) { bw.write(l); bw.newLine(); }
+        } catch (IOException e) { return false; }
+        return true;
     }
     
     public boolean isTechnicianAvailable(String technicianID, String date, String time, int duration) {
@@ -174,6 +168,32 @@ public class AppointmentService {
         }
         return true;
     }
+    
+    public boolean rescheduleAppointment(String appointmentID, String newDate,
+            							 String newTime, String newTechID) {
+    	File file = new File(appointmentFile);
+    	ArrayList<String> lines = new ArrayList<>();
+    	boolean found = false;
+    	try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+    		String line;
+    		while ((line = br.readLine()) != null) {
+    			String[] data = line.split("\\|");
+    			if (data.length >= 10 && data[0].equalsIgnoreCase(appointmentID)) {
+    				data[3] = newTechID;  // technician
+    				data[4] = newDate;    // date
+    				data[5] = newTime;    // time
+    				line = String.join("|", data);
+    				found = true;
+    			}
+    			lines.add(line);
+    		}
+    	} catch (IOException e) { return false; }
+    	if (!found) return false;
+    	try (BufferedWriter bw = new BufferedWriter(new FileWriter(file))) {
+    		for (String l : lines) { bw.write(l); bw.newLine(); }
+    	} catch (IOException e) { return false; }
+    	return true;
+	}
 
     private int timeToMinutes(String time) {
         String[] parts = time.split(":");

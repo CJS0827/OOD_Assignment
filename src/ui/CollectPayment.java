@@ -274,32 +274,39 @@ public class CollectPayment extends JFrame {
         appointments = paymentService.loadAllUnpaidAppointments();
         tableModel.setRowCount(0);
 
+        // Filter: only show Completed appointments
+        ArrayList<String[]> completedUnpaid = new ArrayList<>();
+        for (String[] appt : appointments) {
+            if (appt[9].equalsIgnoreCase("Completed")) {
+                completedUnpaid.add(appt);
+            }
+        }
+        appointments = completedUnpaid; // replace list with filtered one
+
         if (appointments.isEmpty()) {
-            // Show a subtle message — no data
-            JLabel noData = new JLabel("No unpaid appointments found.");
+            JLabel noData = new JLabel("No completed unpaid appointments found.");
             noData.setForeground(Color.GRAY);
-            noData.setBounds(350, 190, 250, 25);
+            noData.setBounds(300, 190, 350, 25);
             add(noData);
             return;
         }
 
         for (String[] appt : appointments) {
-            // appt: [ID, CustomerID, ServiceType, TechnicianID, Date, Time, Duration, Plate, Model, Status]
             String custName = paymentService.getUsernameById(appt[1]);
             String techName = paymentService.getUsernameById(appt[3]);
             double amount   = prices.getOrDefault(appt[2], 0.00);
 
             tableModel.addRow(new Object[]{
-                appt[0],                          // Appt ID
-                custName,                         // Customer name (resolved)
-                appt[2],                          // Service Type
-                techName,                         // Technician name (resolved)
-                appt[4],                          // Date
-                appt[5],                          // Time
-                appt[7],                          // Car Plate
-                appt[8],                          // Vehicle Model
-                appt[9],                          // Status
-                String.format("%.2f", amount)     // Amount
+                appt[0],
+                custName,
+                appt[2],
+                techName,
+                appt[4],
+                appt[5],
+                appt[7],
+                appt[8],
+                appt[9],
+                String.format("%.2f", amount)
             });
         }
     }

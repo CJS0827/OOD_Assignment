@@ -11,7 +11,7 @@ public class ReportService {
     // Encapsulation: private file paths
     private final String APPOINTMENTS_FILE = "data/Appointments.txt";
     private final String PRICES_FILE = "data/prices.txt";
-    private final String FEEDBACK_FILE = "data/feedback.txt";
+    private final String FEEDBACK_FILE = "data/Feedbacks.txt";
     private final String USERS_FILE = "data/users.txt";
 
     // === DATA LOADING ===
@@ -174,9 +174,7 @@ public class ReportService {
         return map;
     }
 
-    // Average rating per technician (read from feedback.txt).
-    // feedback.txt format: appointmentID|fromName|rating|comment|date
-    // We join via appointments.txt to find the technician for each feedback row.
+
     public HashMap<String, Double> getAverageRatingPerTechnician() {
         HashMap<String, ArrayList<Integer>> ratings = new HashMap<>();
         ArrayList<String[]> appts = loadAllAppointments();
@@ -188,15 +186,16 @@ public class ReportService {
             String line;
             while ((line = br.readLine()) != null) {
                 String[] fb = line.split("\\|");
-                if (fb.length < 5) continue;
-                String apptID = fb[0];
+                if (fb.length < 6) continue;  // now needs 6 columns
+
+                String apptID = fb[1];  
                 int rating;
                 try {
-                    rating = Integer.parseInt(fb[2]);
+                    rating = Integer.parseInt(fb[3]); 
                 } catch (NumberFormatException e) {
                     continue;
                 }
-                // Find technician for this appointment
+
                 for (String[] appt : appts) {
                     if (appt[0].equalsIgnoreCase(apptID)) {
                         ratings.computeIfAbsent(appt[3], k -> new ArrayList<>()).add(rating);
@@ -204,7 +203,7 @@ public class ReportService {
                     }
                 }
             }
-        } catch (IOException e) { /* return empty map */ }
+        } catch (IOException e) {}
 
         // Compute averages
         HashMap<String, Double> averages = new HashMap<>();
