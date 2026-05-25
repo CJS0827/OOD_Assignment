@@ -1,2 +1,2 @@
-Normal Service|50.00
-Major Service|150.00
+Normal Service|1|50.00
+Major Service|3|150.00

@@ -23,28 +23,42 @@ public class TechnicianMenu {
         btnProfile.setBounds(130, 80, 180, 30);
         frame.add(btnProfile);
 
-        JButton btnAppointments = new JButton("View Appointments");
+        JButton btnAppointments = new JButton("My Appointments");
         btnAppointments.setBounds(130, 120, 180, 30);
         frame.add(btnAppointments);
 
-        JButton btnComplete = new JButton("Mark as Completed");
-        btnComplete.setBounds(130, 160, 180, 30);
-        frame.add(btnComplete);
-
         JButton btnFeedback = new JButton("Provide Feedback");
-        btnFeedback.setBounds(130, 200, 180, 30);
+        btnFeedback.setBounds(130, 160, 180, 30);
         frame.add(btnFeedback);
 
+        JButton btnComments = new JButton("View Comments");
+        btnComments.setBounds(130, 200, 180, 30);
+        frame.add(btnComments);
+
         JButton btnLogout = new JButton("Logout");
-        btnLogout.setBounds(130, 240, 180, 30);
+        btnLogout.setBounds(130, 250, 180, 30);
         frame.add(btnLogout);
-        
+
         btnProfile.addActionListener(e -> {
-        	frame.dispose();
-        	new EditProfile(user);
+            frame.dispose();
+            new EditProfile(user);
         });
 
-        // Logout action
+        btnAppointments.addActionListener(e -> {
+            frame.dispose();
+            new TechAppointmentsPanel(user);
+        });
+
+        btnFeedback.addActionListener(e -> {
+            frame.dispose();
+            new TechFeedbackPanel(user);
+        });
+
+        btnComments.addActionListener(e -> {
+            frame.dispose();
+            new TechCommentsPanel(user);
+        });
+
         btnLogout.addActionListener(e -> {
             frame.dispose();
             new LoginPage();

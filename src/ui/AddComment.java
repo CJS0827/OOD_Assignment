@@ -5,24 +5,17 @@ import service.CustomerService;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableRowSorter;
+import javax.swing.RowSorter;
+import javax.swing.SortOrder;
 import java.awt.*;
 import java.util.ArrayList;
 
-/**
- * AddComment allows a customer to leave comments on counter staff and technicians
- * involved in their completed appointments.
- *
- * OOP Concepts:
- * - Encapsulation: saveComment() and data loading hidden inside CustomerService
- * - Polymorphism: User object is passed polymorphically from CustomerMenu
- * - Abstraction: Customer interacts with a clean UI without knowing file details
- */
 public class AddComment extends JFrame {
 
     private CustomerService customerService = new CustomerService();
 
-    // Currently selected appointment and target
-    private String selectedApptID   = null;
+    private String selectedApptID    = null;
     private String selectedTargetID  = null;
     private String selectedTargetRole = null;
 
@@ -34,30 +27,38 @@ public class AddComment extends JFrame {
         setLayout(null);
         setLocationRelativeTo(null);
 
-        // ── Title ──
         JLabel title = new JLabel("Provide Comments");
         title.setFont(new Font("Arial", Font.BOLD, 16));
         title.setBounds(310, 15, 200, 30);
         add(title);
 
-        // ── Back button ──
         JButton btnBack = new JButton("< Back");
         btnBack.setBounds(15, 15, 80, 28);
         add(btnBack);
 
         // ── Step 1: Select Appointment ──
-        JLabel lblStep1 = new JLabel("Step 1: Select your appointment");
+        JLabel lblStep1 = new JLabel("Step 1: Select your completed appointment");
         lblStep1.setFont(new Font("Arial", Font.BOLD, 13));
-        lblStep1.setBounds(15, 55, 300, 25);
+        lblStep1.setBounds(15, 55, 350, 25);
         add(lblStep1);
 
         String[] apptCols = {"Appt ID", "Service Type", "Technician", "Date", "Status"};
         DefaultTableModel apptModel = new DefaultTableModel(apptCols, 0) {
             @Override public boolean isCellEditable(int r, int c) { return false; }
         };
+
         JTable apptTable = new JTable(apptModel);
         apptTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        apptTable.getTableHeader().setReorderingAllowed(false);
+        apptTable.setRowHeight(24);
+
+        // Sortable — click any header to sort
+        TableRowSorter<DefaultTableModel> apptSorter = new TableRowSorter<>(apptModel);
+        apptTable.setRowSorter(apptSorter);
+
+        // Default: Appt ID (col 0) descending
+        apptSorter.setSortKeys(java.util.List.of(
+            new RowSorter.SortKey(0, SortOrder.DESCENDING)
+        ));
 
         int[] apptWidths = {70, 120, 100, 90, 90};
         for (int i = 0; i < apptWidths.length; i++)
@@ -73,15 +74,16 @@ public class AddComment extends JFrame {
         lblStep2.setBounds(15, 225, 300, 25);
         add(lblStep2);
 
-        JLabel lblStep2note = new JLabel("(Select an appointment above first)");
+        JLabel lblStep2note = new JLabel("(Select a completed appointment above first)");
         lblStep2note.setForeground(Color.GRAY);
-        lblStep2note.setBounds(15, 245, 300, 20);
+        lblStep2note.setBounds(15, 245, 400, 20);
         add(lblStep2note);
 
         String[] targetCols = {"User ID", "Name", "Role", "Already Commented?"};
         DefaultTableModel targetModel = new DefaultTableModel(targetCols, 0) {
             @Override public boolean isCellEditable(int r, int c) { return false; }
         };
+
         JTable targetTable = new JTable(targetModel);
         targetTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         targetTable.getTableHeader().setReorderingAllowed(false);
@@ -104,6 +106,7 @@ public class AddComment extends JFrame {
         commentArea.setLineWrap(true);
         commentArea.setWrapStyleWord(true);
         commentArea.setBorder(BorderFactory.createLineBorder(Color.GRAY));
+        commentArea.setEnabled(false);
 
         JScrollPane commentScroll = new JScrollPane(commentArea);
         commentScroll.setBounds(15, 405, 740, 80);
@@ -114,7 +117,6 @@ public class AddComment extends JFrame {
         charCount.setBounds(630, 490, 130, 20);
         add(charCount);
 
-        // Character counter
         commentArea.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
             void update() {
                 int len = commentArea.getText().length();
@@ -126,11 +128,11 @@ public class AddComment extends JFrame {
             public void changedUpdate(javax.swing.event.DocumentEvent e) { update(); }
         });
 
-        // ── Submit button ──
         JButton btnSubmit = new JButton("Submit Comment");
         btnSubmit.setBounds(295, 495, 180, 32);
         btnSubmit.setBackground(new Color(51, 153, 255));
         btnSubmit.setForeground(Color.WHITE);
+        btnSubmit.setEnabled(false);
         add(btnSubmit);
 
         // ── Load appointments ──
@@ -142,18 +144,36 @@ public class AddComment extends JFrame {
             });
         }
 
-        // ── When appointment row selected → populate targets ──
+        // ── Appointment row selected ──
         apptTable.getSelectionModel().addListSelectionListener(e -> {
-            int row = apptTable.getSelectedRow();
-            if (row < 0) return;
+            int viewRow = apptTable.getSelectedRow();
+            if (viewRow < 0) return;
 
-            selectedApptID = apptTable.getValueAt(row, 0).toString();
-            String[] appt  = appointments.get(row);
+            // Convert view index to model index (important when sorted)
+            int modelRow = apptTable.convertRowIndexToModel(viewRow);
 
-            targetModel.setRowCount(0); // clear
+            selectedApptID = apptModel.getValueAt(modelRow, 0).toString();
+            String[] appt  = appointments.get(modelRow);
+            String status  = appt[9];
+
+            targetModel.setRowCount(0);
             selectedTargetID   = null;
             selectedTargetRole = null;
             commentArea.setText("");
+
+            // Only allow commenting on Completed appointments
+            if (!status.equalsIgnoreCase("Completed")) {
+                lblStep2note.setText("⚠ Comments only allowed for Completed appointments.");
+                lblStep2note.setForeground(new Color(180, 80, 0));
+                commentArea.setEnabled(false);
+                btnSubmit.setEnabled(false);
+                return;
+            }
+
+            lblStep2note.setText("Select who to comment on below.");
+            lblStep2note.setForeground(Color.DARK_GRAY);
+            commentArea.setEnabled(true);
+            btnSubmit.setEnabled(true);
 
             // Add Technician row
             String techID   = appt[3];
@@ -164,7 +184,7 @@ public class AddComment extends JFrame {
                 techCommented ? "✓ Yes" : "Not yet"
             });
 
-            // Add the specific Counter Staff who created this appointment
+            // Add Counter Staff row
             String[] staff = customerService.getCounterStaffForAppointment(selectedApptID);
             if (staff != null) {
                 boolean staffCommented = customerService.hasCommented(selectedApptID, user.getId(), staff[0]);
@@ -175,7 +195,7 @@ public class AddComment extends JFrame {
             }
         });
 
-        // ── When target row selected → remember who to comment on ──
+        // ── Target row selected ──
         targetTable.getSelectionModel().addListSelectionListener(e -> {
             int row = targetTable.getSelectedRow();
             if (row < 0) return;
@@ -183,7 +203,7 @@ public class AddComment extends JFrame {
             selectedTargetRole = targetTable.getValueAt(row, 2).toString();
         });
 
-        // ── Submit comment ──
+        // ── Submit ──
         btnSubmit.addActionListener(e -> {
             if (selectedApptID == null) {
                 JOptionPane.showMessageDialog(this, "Please select an appointment first.");
@@ -202,7 +222,6 @@ public class AddComment extends JFrame {
                 JOptionPane.showMessageDialog(this, "Comment must be 200 characters or less.");
                 return;
             }
-            // Check duplicate
             if (customerService.hasCommented(selectedApptID, user.getId(), selectedTargetID)) {
                 JOptionPane.showMessageDialog(this,
                     "You have already commented on this person for this appointment.");
@@ -217,19 +236,17 @@ public class AddComment extends JFrame {
                 JOptionPane.showMessageDialog(this, "Comment submitted successfully!");
                 commentArea.setText("");
 
-                // Refresh the already-commented column
-                int apptRow = apptTable.getSelectedRow();
-                if (apptRow >= 0) {
-                    // Re-trigger by re-firing selection
+                // Refresh already-commented column
+                int viewRow = apptTable.getSelectedRow();
+                if (viewRow >= 0) {
                     apptTable.getSelectionModel().clearSelection();
-                    apptTable.getSelectionModel().setSelectionInterval(apptRow, apptRow);
+                    apptTable.getSelectionModel().setSelectionInterval(viewRow, viewRow);
                 }
             } else {
                 JOptionPane.showMessageDialog(this, "Failed to save comment. Please try again.");
             }
         });
 
-        // ── Back ──
         btnBack.addActionListener(e -> {
             dispose();
             new CustomerMenu(user);

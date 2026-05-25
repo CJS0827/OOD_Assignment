@@ -7,4 +7,5 @@ U006|Darren|1234|0123454321|darren@gmail.com|What is your favourite color?|red|C
 U007|John|1234|0123456677|john@gmail.com|N/A|N/A|Customer|Active
 U008|Jacky|1234|0192288567|jacky@gmail.com|N/A|N/A|Customer|Active
 U009|Luffy|1234|0156723843|luffy@gmail.com|N/A|N/A|Customer|Active
-U010|Elsa|1234|0123334568|elsa@gmail.com|What city were you born in?|USA|Technician|Active
+U010|Elsa|1234|0123344568|elsa@gmail.com|What city were you born in?|USA|Technician|Active
+U011|Sara|1234|0198765432|sara@gmail.com|N/A|N/A|CounterStaff|Active

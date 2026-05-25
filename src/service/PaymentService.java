@@ -50,7 +50,7 @@ public class PaymentService {
                 String[] data = line.split("\\|");
                 if (data.length >= 2) {
                     try {
-                        prices.put(data[0].trim(), Double.parseDouble(data[1].trim()));
+                        prices.put(data[0].trim(), Double.parseDouble(data[2].trim()));
                     } catch (NumberFormatException ignored) {}
                 }
             }
@@ -205,6 +205,24 @@ public class PaymentService {
             }
         } catch (IOException e) {}
         return userID; // fallback: return ID if not found
+    }
+    
+ // Returns "Paid (Cash)", "Paid (Card)", or "Unpaid"
+    public String getPaymentStatus(String appointmentID) {
+        File file = new File(paymentFile);
+        if (!file.exists()) return "Unpaid";
+
+        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] data = line.split("\\|");
+                if (data.length >= 7 && data[1].equalsIgnoreCase(appointmentID)) {
+                    return "Paid (" + data[6].trim() + ")"; // e.g. "Paid (Cash)"
+                }
+            }
+        } catch (IOException e) {}
+
+        return "Unpaid";
     }
 
     // ─────────────────────────────────────────────

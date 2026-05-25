@@ -1,2 +1,4 @@
-F001|A001|U003|Great car, easy to service. Oil change done smoothly.|2026-04-10
-F002|A002|U003|Major service completed. Found minor brake wear, advised customer.|2026-04-10
+F001|A001|U003|5|Great car, easy to service. Oil change done smoothly.|2026-04-10
+F002|A002|U003|3|Major service completed. Found minor brake wear, advised customer.|2026-04-10
+F003|A003|U003|4|Everything good!|2026-05-25
+F004|A006|U003|3|Customer toxic|2026-05-25
