@@ -7,6 +7,6 @@
 	</classpathentry>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="lib" path="lib/jcalendar-1.4.jar"/>
-	<classpathentry kind="lib" path="C:/Users/chanj/Documents/GitHub/OOD_Assignment/lib/itextpdf-5.5.13.3.jar"/>
+	<classpathentry kind="lib" path="lib/itextpdf-5.5.13.3.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
