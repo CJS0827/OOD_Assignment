@@ -88,27 +88,26 @@ public class AuthService {
     }
 
     private String getNextUserId(File file) throws IOException {
-
-        int lastNum = 0;
+        int maxNum = 0;  // track maximum, not just last
 
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;
-
             while ((line = reader.readLine()) != null) {
                 String[] user = line.split("\\|");
-
-                if (user.length >= 1) {
-
-                    String id = user[0].substring(1);
-                    lastNum = Integer.parseInt(id);
+                if (user.length >= 1 && user[0].startsWith("U")) {
+                    try {
+                        int num = Integer.parseInt(user[0].substring(1));
+                        if (num > maxNum) {
+                            maxNum = num;  // keep the highest found
+                        }
+                    } catch (NumberFormatException e) {
+                        // skip malformed lines
+                    }
                 }
             }
         }
 
-        int newNum = lastNum + 1;
-
-        // format: U001, U002, U003
-        return String.format("U%03d", newNum);
+        return String.format("U%03d", maxNum + 1);
     }
     
     public String getSecurityQuestion(String username) {
@@ -193,5 +192,47 @@ public class AuthService {
         }
 
         return true;
+    }
+    
+    public boolean isUsernameTaken(String username) {
+        File file = new File("data/users.txt");
+        if (!file.exists()) return false;
+        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] data = line.split("\\|");
+                if (data.length >= 2 && data[1].equalsIgnoreCase(username))
+                    return true;
+            }
+        } catch (IOException e) {}
+        return false;
+    }
+
+    public boolean isPhoneTaken(String phone) {
+        File file = new File("data/users.txt");
+        if (!file.exists()) return false;
+        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] data = line.split("\\|");
+                if (data.length >= 4 && data[3].equals(phone))
+                    return true;
+            }
+        } catch (IOException e) {}
+        return false;
+    }
+
+    public boolean isEmailTaken(String email) {
+        File file = new File("data/users.txt");
+        if (!file.exists()) return false;
+        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] data = line.split("\\|");
+                if (data.length >= 5 && data[4].equalsIgnoreCase(email))
+                    return true;
+            }
+        } catch (IOException e) {}
+        return false;
     }
 }

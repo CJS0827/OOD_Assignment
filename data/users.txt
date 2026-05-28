@@ -9,3 +9,12 @@ U008|Jacky|1234|0192288567|jacky@gmail.com|N/A|N/A|Customer|Active
 U009|Luffy|1234|0156723843|luffy@gmail.com|N/A|N/A|Customer|Active
 U010|Elsa|1234|0123344568|elsa@gmail.com|What city were you born in?|USA|Technician|Active
 U011|Sara|1234|0198765432|sara@gmail.com|N/A|N/A|CounterStaff|Active
+U012|Kevin|1234|0167834521|kevin@gmail.com|What is your pet's name?|milo|Customer|Active
+U013|Megan|1234|0134567890|megan@gmail.com|What is your favourite food?|pizza|Customer|Active
+U014|Jason|1234|0178923456|jason@gmail.com|What city were you born in?|penang|Customer|Active
+U015|Nina|1234|0145678901|nina@gmail.com|What is your favourite color?|blue|Customer|Active
+U016|Ricky|1234|0123987654|ricky@gmail.com|N/A|N/A|Customer|Inactive
+U017|Fiona|1234|0167452310|fiona@gmail.com|What is your pet's name?|coco|Technician|Active
+U018|Harris|1234|0189234567|harris@gmail.com|N/A|N/A|CounterStaff|Active
+U019|Zara|1234|0156340987|zara@gmail.com|What is your favourite food?|sushi|Customer|Active
+U020|Bryan|1234|0143219876|bryan@gmail.com|What city were you born in?|johor|Customer|Active

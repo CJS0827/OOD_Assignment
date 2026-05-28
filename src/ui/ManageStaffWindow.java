@@ -145,6 +145,9 @@ public class ManageStaffWindow {
 
             // Exception Handling: catch from MOST specific to MOST general
             try {
+            	allUsers = service.loadAllUsers();
+                staffList = service.getStaffList(allUsers);
+                
                 User newStaff = service.addStaff(username, password, phone, email, role, allUsers);
                 staffList.add(newStaff);
 

@@ -100,22 +100,13 @@ public class ManageCustomerService {
         int max = 0;
 
         for(User u : allUsers) {
-
-            if(u.getRole().equalsIgnoreCase("Customer")) {
-
-                try {
-
-                    int num = Integer.parseInt(u.getId().substring(1));
-
-                    if(num > max)
-                        max = num;
-
-                } catch(Exception e) {}
-
-            }
-
+        	try {
+        		int num = Integer.parseInt(u.getId().substring(1));
+        		if(num > max)
+        			max = num;
+        	} catch(Exception e) {}
         }
-
+        
         return String.format("U%03d", max + 1);
     }
 
