@@ -133,25 +133,42 @@ public class ManageStaffWindow {
         btnAdd.addActionListener(e -> {
             String username = tfUsername.getText().trim();
             String password = tfPassword.getText().trim();
-            String phone = tfPhone.getText().trim();
-            String email = tfEmail.getText().trim();
-            String role = cmbRole.getSelectedItem().toString();
+            String phone    = tfPhone.getText().trim();
+            String email    = tfEmail.getText().trim();
+            String role     = cmbRole.getSelectedItem().toString();
 
-            // Empty-field check stays in UI (no need to throw for this)
             if (username.isEmpty() || password.isEmpty() || phone.isEmpty() || email.isEmpty()) {
                 JOptionPane.showMessageDialog(frame, "Please fill in all fields.");
                 return;
             }
 
-            // Exception Handling: catch from MOST specific to MOST general
             try {
-            	allUsers = service.loadAllUsers();
+                allUsers  = service.loadAllUsers();  // reload fresh
                 staffList = service.getStaffList(allUsers);
-                
+
+                // ✅ Check phone duplicate across ALL users
+                boolean phoneExists = allUsers.stream()
+                    .anyMatch(u -> u.getPhone().equals(phone));
+                if (phoneExists) {
+                    JOptionPane.showMessageDialog(frame,
+                        "Phone number already registered by another user.",
+                        "Duplicate Record", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+
+                // ✅ Check email duplicate across ALL users
+                boolean emailExists = allUsers.stream()
+                    .anyMatch(u -> u.getEmail().equalsIgnoreCase(email));
+                if (emailExists) {
+                    JOptionPane.showMessageDialog(frame,
+                        "Email already registered by another user.",
+                        "Duplicate Record", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+
                 User newStaff = service.addStaff(username, password, phone, email, role, allUsers);
                 staffList.add(newStaff);
 
-                // Update JTable display
                 tableModel.addRow(new Object[]{
                     newStaff.getId(), newStaff.getUsername(), newStaff.getRole(),
                     newStaff.getPhone(), newStaff.getEmail(), newStaff.getStatus()
@@ -161,19 +178,16 @@ public class ManageStaffWindow {
                 clearFields(tfUsername, tfPassword, tfPhone, tfEmail);
 
             } catch (InvalidInputException ex) {
-                // Custom checked exception: tell user which field is wrong
                 JOptionPane.showMessageDialog(frame,
                     "Invalid " + ex.getFieldName() + ": " + ex.getMessage(),
                     "Validation Error", JOptionPane.WARNING_MESSAGE);
 
             } catch (DuplicateRecordException ex) {
-                // Custom checked exception: tell user the record already exists
                 JOptionPane.showMessageDialog(frame,
                     ex.getMessage(),
                     "Duplicate Record", JOptionPane.WARNING_MESSAGE);
 
             } catch (Exception ex) {
-                // Polymorphic reference: catches anything else (Lecture 9.0 slide 12)
                 JOptionPane.showMessageDialog(frame,
                     "Unexpected error: " + ex.getMessage(),
                     "Error", JOptionPane.ERROR_MESSAGE);
@@ -207,28 +221,45 @@ public class ManageStaffWindow {
                 String newPhone = tfPhone.getText().trim();
                 String newEmail = tfEmail.getText().trim();
 
-                // Input validation using static methods from Manager class
                 if (!Manager.isValidPhone(newPhone)) {
-                    JOptionPane.showMessageDialog(frame,
-                        "Invalid phone number.\nPhone must be 10–12 digits.");
+                    JOptionPane.showMessageDialog(frame, "Invalid phone number.\nPhone must be 10–12 digits.");
                     return;
                 }
-
                 if (!Manager.isValidEmail(newEmail)) {
-                    JOptionPane.showMessageDialog(frame,
-                        "Invalid email address.\nExample: name@domain.com");
+                    JOptionPane.showMessageDialog(frame, "Invalid email address.\nExample: name@domain.com");
                     return;
                 }
 
                 User staff = staffList.get(row);
+
+                // ✅ Check phone conflict with OTHER users
+                boolean phoneConflict = allUsers.stream()
+                    .anyMatch(u -> !u.getId().equals(staff.getId())
+                        && u.getPhone().equals(newPhone));
+                if (phoneConflict) {
+                    JOptionPane.showMessageDialog(frame,
+                        "Phone number already registered by another user.",
+                        "Duplicate Record", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+
+                // ✅ Check email conflict with OTHER users
+                boolean emailConflict = allUsers.stream()
+                    .anyMatch(u -> !u.getId().equals(staff.getId())
+                        && u.getEmail().equalsIgnoreCase(newEmail));
+                if (emailConflict) {
+                    JOptionPane.showMessageDialog(frame,
+                        "Email already registered by another user.",
+                        "Duplicate Record", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+
                 staff.setPhone(newPhone);
                 staff.setEmail(newEmail);
 
-                // Update table display
                 tableModel.setValueAt(staff.getPhone(), row, 3);
                 tableModel.setValueAt(staff.getEmail(), row, 4);
 
-                // Save to file using FileWriter
                 service.saveAllUsers(allUsers);
                 JOptionPane.showMessageDialog(frame, "Staff updated successfully!");
 
