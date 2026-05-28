@@ -110,15 +110,27 @@ public class EditProfile {
         });
 
         btnSave.addActionListener(e -> {
-            String newPhone = txtPhone.getText().trim();
-            String newEmail = txtEmail.getText().trim();
+            String newPhone    = txtPhone.getText().trim();
+            String newEmail    = txtEmail.getText().trim();
             String newPassword = new String(txtPassword.getPassword()).trim();
             String confirmPassword = new String(txtConfirmPassword.getPassword()).trim();
             String newQuestion = cmbQuestion.getSelectedItem().toString();
-            String newAnswer = txtAnswer.getText().trim();
+            String newAnswer   = txtAnswer.getText().trim();
 
             if (newPhone.isEmpty() || newEmail.isEmpty() || newQuestion.isEmpty() || newAnswer.isEmpty()) {
                 JOptionPane.showMessageDialog(frame, "Please fill in all fields.");
+                return;
+            }
+
+            // Phone format check
+            if (!newPhone.matches("\\d{10,11}")) {
+                JOptionPane.showMessageDialog(frame, "Phone must be 10-11 digits.");
+                return;
+            }
+
+            // Email format check
+            if (!newEmail.matches("^[\\w._%+\\-]+@[\\w.\\-]+\\.[a-zA-Z]{2,}$")) {
+                JOptionPane.showMessageDialog(frame, "Invalid email format.");
                 return;
             }
 
@@ -129,15 +141,34 @@ public class EditProfile {
                 }
             }
 
+            // ✅ Check phone and email duplicate — exclude current user's own ID
+            File file = new File("data/users.txt");
+            try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+                String line;
+                while ((line = br.readLine()) != null) {
+                    String[] data = line.split("\\|");
+                    if (data.length >= 5 && !data[0].equals(user.getId())) {
+                        if (data[3].equals(newPhone)) {
+                            JOptionPane.showMessageDialog(frame,
+                                "Phone number already registered by another user.");
+                            return;
+                        }
+                        if (data[4].equalsIgnoreCase(newEmail)) {
+                            JOptionPane.showMessageDialog(frame,
+                                "Email already registered by another user.");
+                            return;
+                        }
+                    }
+                }
+            } catch (IOException ex) {
+                JOptionPane.showMessageDialog(frame, "Error checking duplicates.");
+                return;
+            }
+
             String finalPassword = newPassword.isEmpty() ? user.getPassword() : newPassword;
 
             boolean updated = updateProfile(
-                user.getId(),
-                newPhone,
-                newEmail,
-                finalPassword,
-                newQuestion,
-                newAnswer
+                user.getId(), newPhone, newEmail, finalPassword, newQuestion, newAnswer
             );
 
             if (updated) {
