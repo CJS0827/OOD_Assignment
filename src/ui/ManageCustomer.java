@@ -294,11 +294,16 @@ public class ManageCustomer {
                 JOptionPane.showMessageDialog(f, "Invalid email format.");
                 return;
             }
+            
+            allUsers = service.loadAllUsers();
+            list     = service.getCustomers(allUsers);
 
             boolean usernameExists = allUsers.stream()
                 .anyMatch(u -> u.getUsername().equalsIgnoreCase(username));
             boolean emailExists = allUsers.stream()
                 .anyMatch(u -> u.getEmail().equalsIgnoreCase(email));
+            boolean phoneExists = allUsers.stream() 
+            	    .anyMatch(u -> u.getPhone().equals(phone));
 
             if (usernameExists) {
                 tfUsername.setBorder(BorderFactory.createLineBorder(Color.RED));
@@ -310,6 +315,12 @@ public class ManageCustomer {
                 tfEmail.setBorder(BorderFactory.createLineBorder(Color.RED));
                 tfEmail.setBackground(new Color(255, 200, 200));
                 JOptionPane.showMessageDialog(f, "Email already exists!");
+                return;
+            }
+            if (phoneExists) { 
+                tfPhone.setBorder(BorderFactory.createLineBorder(Color.RED));
+                tfPhone.setBackground(new Color(255, 200, 200));
+                JOptionPane.showMessageDialog(f, "Phone number already registered!");
                 return;
             }
 
@@ -352,8 +363,29 @@ public class ManageCustomer {
             boolean usernameConflict = allUsers.stream()
                 .anyMatch(other -> !other.getId().equals(u.getId())
                     && other.getUsername().equalsIgnoreCase(newUsername));
+            
+            boolean emailConflict = allUsers.stream() 
+                    .anyMatch(other -> !other.getId().equals(u.getId())
+                        && other.getEmail().equalsIgnoreCase(newEmail));
+
+                boolean phoneConflict = allUsers.stream() 
+                    .anyMatch(other -> !other.getId().equals(u.getId())
+                        && other.getPhone().equals(newPhone));
+                
             if (usernameConflict) {
                 JOptionPane.showMessageDialog(f, "Username already taken by another user.");
+                return;
+            }
+            if (emailConflict) {
+                tfEmail.setBorder(BorderFactory.createLineBorder(Color.RED));
+                tfEmail.setBackground(new Color(255, 200, 200));
+                JOptionPane.showMessageDialog(f, "Email already registered by another user.");
+                return;
+            }
+            if (phoneConflict) {
+                tfPhone.setBorder(BorderFactory.createLineBorder(Color.RED));
+                tfPhone.setBackground(new Color(255, 200, 200));
+                JOptionPane.showMessageDialog(f, "Phone number already registered by another user.");
                 return;
             }
 

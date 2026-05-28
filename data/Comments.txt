@@ -2,3 +2,21 @@ C001|A001|U005|U002|CounterStaff|Very helpful and friendly staff!|2026-04-10
 C002|A001|U005|U003|Technician|Technician was professional and quick.|2026-04-10
 C003|A004|U007|U003|Technician|Over all is good!|2026-05-18
 C004|A004|U007|U002|CounterStaff|Good Service|2026-05-18
+C005|A002|U006|U002|CounterStaff|Staff was polite and efficient.|2026-04-10
+C006|A002|U006|U003|Technician|Very thorough job, satisfied with the service.|2026-04-10
+C007|A003|U006|U003|Technician|Technician explained everything clearly.|2026-04-11
+C008|A003|U006|U002|CounterStaff|Quick and smooth appointment process.|2026-04-11
+C009|A005|U005|U003|Technician|Great work, car runs perfectly now.|2026-05-27
+C010|A005|U005|U002|CounterStaff|Counter staff was very accommodating.|2026-05-27
+C011|A006|U005|U003|Technician|Fast and reliable service.|2026-05-19
+C012|A006|U005|U002|CounterStaff|Friendly and helpful at the counter.|2026-05-19
+C013|A007|U007|U010|Technician|Technician was skilled and careful.|2026-05-19
+C014|A007|U007|U002|CounterStaff|Good communication from the staff.|2026-05-19
+C015|A008|U008|U010|Technician|Excellent service, very happy with the result.|2026-05-27
+C016|A008|U008|U002|CounterStaff|Staff handled everything professionally.|2026-05-27
+C017|A009|U005|U003|Technician|Technician was punctual and efficient.|2026-05-28
+C018|A009|U005|U002|CounterStaff|Very smooth experience at the counter.|2026-05-28
+C019|A010|U009|U010|Technician|Impressed with the quality of work done.|2026-05-28
+C020|A010|U009|U002|CounterStaff|Staff was knowledgeable and helpful.|2026-05-28
+C021|A011|U006|U003|Technician|Service was completed ahead of schedule.|2026-05-29
+C022|A011|U006|U002|CounterStaff|Pleasant experience, will come back again.|2026-05-29

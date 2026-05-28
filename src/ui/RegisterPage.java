@@ -90,27 +90,60 @@ public class RegisterPage {
 
         registerButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                String username = userText.getText().trim();
-                String password = new String(passText.getPassword()).trim();
-                String confirmPassword = new String(confirmText.getPassword()).trim();
-                String phone = phoneText.getText().trim();
-                String email = emailText.getText().trim();
+                String username         = userText.getText().trim();
+                String password         = new String(passText.getPassword()).trim();
+                String confirmPassword  = new String(confirmText.getPassword()).trim();
+                String phone            = phoneText.getText().trim();
+                String email            = emailText.getText().trim();
                 String securityQuestion = (String) questionBox.getSelectedItem();
-                String securityAnswer = answerText.getText().trim();
-                String role = "Customer";
+                String securityAnswer   = answerText.getText().trim();
+                String role             = "Customer";
 
+                // Empty field check
                 if (username.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()
                         || phone.isEmpty() || email.isEmpty() || securityAnswer.isEmpty()) {
                     JOptionPane.showMessageDialog(frame, "Please fill in all fields.");
                     return;
                 }
 
+                // Password match check
                 if (!password.equals(confirmPassword)) {
                     JOptionPane.showMessageDialog(frame, "Passwords do not match.");
                     return;
                 }
 
+                // Phone format check
+                if (!phone.matches("\\d{10,11}")) {
+                    JOptionPane.showMessageDialog(frame, "Phone must be 10-11 digits.");
+                    return;
+                }
+
+                // Email format check
+                if (!email.matches("^[\\w._%+\\-]+@[\\w.\\-]+\\.[a-zA-Z]{2,}$")) {
+                    JOptionPane.showMessageDialog(frame, "Invalid email format.");
+                    return;
+                }
+
                 AuthService authService = new AuthService();
+
+                // ✅ Check username duplicate
+                if (authService.isUsernameTaken(username)) {
+                    JOptionPane.showMessageDialog(frame, "Username already exists!");
+                    return;
+                }
+
+                // ✅ Check phone duplicate
+                if (authService.isPhoneTaken(phone)) {
+                    JOptionPane.showMessageDialog(frame, "Phone number already registered!");
+                    return;
+                }
+
+                // ✅ Check email duplicate
+                if (authService.isEmailTaken(email)) {
+                    JOptionPane.showMessageDialog(frame, "Email already registered!");
+                    return;
+                }
+
                 boolean success = authService.register(
                     username, password, phone, email, securityQuestion, securityAnswer, role
                 );
@@ -120,7 +153,7 @@ public class RegisterPage {
                     frame.dispose();
                     new LoginPage();
                 } else {
-                    JOptionPane.showMessageDialog(frame, "Username already exists or save failed.");
+                    JOptionPane.showMessageDialog(frame, "Registration failed. Please try again.");
                 }
             }
         });

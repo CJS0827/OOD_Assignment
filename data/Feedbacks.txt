@@ -1,6 +1,11 @@
 F001|A001|U003|5|Great car, easy to service. Oil change done smoothly.|2026-04-10
 F002|A002|U003|3|Major service completed. Found minor brake wear, advised customer.|2026-04-10
 F003|A003|U003|4|Everything good!|2026-05-25
-F004|A006|U003|3|Customer toxic|2026-05-25
-F005|A004|U003|5|Great attitude!|2026-05-27
-F006|A007|U010|4|Good customer|2026-05-27
+F004|A006|U003|3|Customer was uncooperative during service.|2026-05-25
+F005|A004|U003|5|Great attitude, smooth service overall.|2026-05-27
+F006|A007|U010|4|Good customer, no issues during service.|2026-05-27
+F007|A005|U003|4|Customer was cooperative, service completed on time.|2026-05-27
+F008|A008|U010|5|Excellent experience, customer was very pleasant.|2026-05-27
+F009|A009|U003|4|Normal service completed smoothly, no issues found.|2026-05-28
+F010|A010|U010|3|Major service done, customer requested extra checks on tyres.|2026-05-28
+F011|A011|U003|5|Quick and easy service, customer was friendly and punctual.|2026-05-29
