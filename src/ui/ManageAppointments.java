@@ -100,7 +100,7 @@ public class ManageAppointments {
         frame.add(lblSelected);
 
         // ── Load data ──
-        loadTable();
+        loadTable(user.getId());
 
         // ── Search filter ──
         txtSearch.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
@@ -163,7 +163,7 @@ public class ManageAppointments {
 
             if (service.updateAppointmentStatus(appt[0], "Cancelled")) {
                 JOptionPane.showMessageDialog(frame, "Appointment " + appt[0] + " has been cancelled.");
-                loadTable();
+                loadTable(user.getId());
                 lblSelected.setText("No appointment selected.");
                 lblSelected.setForeground(Color.GRAY);
                 btnReschedule.setEnabled(false);
@@ -182,22 +182,25 @@ public class ManageAppointments {
         frame.setVisible(true);
     }
 
-    private void loadTable() {
+    private void loadTable(String staffId) {
         appointments = service.loadAllAppointments();
         tableModel.setRowCount(0);
         for (String[] appt : appointments) {
-            String custName = service.getUsernameById(appt[1]);
-            String techName = service.getUsernameById(appt[3]);
-            tableModel.addRow(new Object[]{
-                appt[0], custName, appt[2], techName,
-                appt[4], appt[5], appt[6], appt[7], appt[8], appt[9]
-            });
+            // appt[10] is the counter staff ID who created it
+            if (appt.length > 10 && appt[10].equalsIgnoreCase(staffId)) {
+                String custName = service.getUsernameById(appt[1]);
+                String techName = service.getUsernameById(appt[3]);
+                tableModel.addRow(new Object[]{
+                    appt[0], custName, appt[2], techName,
+                    appt[4], appt[5], appt[6], appt[7], appt[8], appt[9]
+                });
+            }
         }
     }
 
     private void showRescheduleDialog(JFrame parent, String[] appt, User user) {
         JDialog dialog = new JDialog(parent, "Reschedule Appointment " + appt[0], true);
-        dialog.setSize(380, 280);
+        dialog.setSize(380, 300);
         dialog.setLayout(null);
         dialog.setLocationRelativeTo(parent);
 
@@ -230,21 +233,59 @@ public class ManageAppointments {
         l3.setBounds(20, 100, 100, 25);
         dialog.add(l3);
 
-        // Load available technicians
-        String[] techEntries = service.loadTechnicians();
-        String[] techNames   = extractNames(techEntries);
-        JComboBox<String> techBox = new JComboBox<>(techNames);
+        // Get service type duration from current appointment
+        int duration = appt[2].equals("Normal Service") ? 1 : 3;
+
+        // Load only available technicians based on selected date/time
+        String[] allTechEntries = service.loadTechnicians();
+        JComboBox<String> techBox = new JComboBox<>();
         techBox.setBounds(130, 100, 180, 25);
         dialog.add(techBox);
 
+        JLabel lblNoTech = new JLabel("");
+        lblNoTech.setForeground(Color.RED);
+        lblNoTech.setFont(new Font("Arial", Font.PLAIN, 11));
+        lblNoTech.setBounds(20, 135, 320, 20);
+        dialog.add(lblNoTech);
+
+        // Method to refresh available technicians
+        Runnable refreshTech = () -> {
+            String date = dateChooser.getDate() != null
+                ? new SimpleDateFormat("yyyy-MM-dd").format(dateChooser.getDate()) : "";
+            String time = String.format("%02d:%02d",
+                (int) hourSpinner.getValue(), (int) minuteSpinner.getValue());
+
+            techBox.removeAllItems();
+            int count = 0;
+            for (String entry : allTechEntries) {
+                String techID = entry.split("\\|")[0];
+                // ✅ Skip current appointment when checking availability
+                // so the same technician can be kept if time doesn't conflict with others
+                if (service.isTechnicianAvailableExcluding(techID, date, time, duration, appt[0])) {
+                    techBox.addItem(entry.split("\\|")[1]);
+                    count++;
+                }
+            }
+            if (count == 0) {
+                lblNoTech.setText("No technicians available at this time.");
+            } else {
+                lblNoTech.setText("");
+            }
+        };
+
+        // Trigger refresh when date or time changes
+        dateChooser.addPropertyChangeListener("date", e -> refreshTech.run());
+        hourSpinner.addChangeListener(e -> refreshTech.run());
+        minuteSpinner.addChangeListener(e -> refreshTech.run());
+
         JButton btnConfirm = new JButton("Confirm Reschedule");
-        btnConfirm.setBounds(90, 160, 190, 30);
+        btnConfirm.setBounds(90, 165, 190, 30);
         btnConfirm.setBackground(new Color(51, 153, 255));
         btnConfirm.setForeground(Color.WHITE);
         dialog.add(btnConfirm);
 
         JButton btnDialogCancel = new JButton("Cancel");
-        btnDialogCancel.setBounds(90, 200, 190, 25);
+        btnDialogCancel.setBounds(90, 205, 190, 25);
         dialog.add(btnDialogCancel);
 
         btnConfirm.addActionListener(e -> {
@@ -252,19 +293,39 @@ public class ManageAppointments {
                 ? new SimpleDateFormat("yyyy-MM-dd").format(dateChooser.getDate()) : "";
             String newTime = String.format("%02d:%02d",
                 (int) hourSpinner.getValue(), (int) minuteSpinner.getValue());
-            int techIndex  = techBox.getSelectedIndex();
-            String newTechID = extractId(techEntries, techIndex);
 
             if (newDate.isEmpty()) {
                 JOptionPane.showMessageDialog(dialog, "Please select a new date.");
                 return;
+            }
+            if (techBox.getItemCount() == 0) {
+                JOptionPane.showMessageDialog(dialog,
+                    "No technicians available. Please choose a different date or time.");
+                return;
+            }
+
+            // Get selected technician ID
+            int selectedIndex = techBox.getSelectedIndex();
+            String newTechID = "";
+            int count = 0;
+            for (String entry : allTechEntries) {
+                String techID = entry.split("\\|")[0];
+                String time = String.format("%02d:%02d",
+                    (int) hourSpinner.getValue(), (int) minuteSpinner.getValue());
+                if (service.isTechnicianAvailableExcluding(techID, newDate, time, duration, appt[0])) {
+                    if (count == selectedIndex) {
+                        newTechID = techID;
+                        break;
+                    }
+                    count++;
+                }
             }
 
             if (service.rescheduleAppointment(appt[0], newDate, newTime, newTechID)) {
                 JOptionPane.showMessageDialog(dialog,
                     "Appointment " + appt[0] + " rescheduled successfully!");
                 dialog.dispose();
-                loadTable();
+                loadTable(user.getId());
             } else {
                 JOptionPane.showMessageDialog(dialog,
                     "Failed to reschedule. Please try again.", "Error", JOptionPane.ERROR_MESSAGE);
