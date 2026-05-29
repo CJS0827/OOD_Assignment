@@ -169,6 +169,29 @@ public class AppointmentService {
         return true;
     }
     
+ // Same as isTechnicianAvailable but skips the appointment being rescheduled
+    public boolean isTechnicianAvailableExcluding(String technicianID, String date,
+                                                   String time, int duration,
+                                                   String excludeApptID) {
+        for (String[] appt : loadAllAppointments()) {
+            if (!appt[3].equalsIgnoreCase(technicianID)) continue;
+            if (!appt[4].equalsIgnoreCase(date)) continue;
+            if (appt[9].equalsIgnoreCase("Completed")) continue;
+            if (appt[9].equalsIgnoreCase("Cancelled")) continue;
+            if (appt[0].equalsIgnoreCase(excludeApptID)) continue; // ✅ skip self
+
+            int existingStart = timeToMinutes(appt[5]);
+            int existingEnd   = existingStart + (Integer.parseInt(appt[6]) * 60);
+            int newStart      = timeToMinutes(time);
+            int newEnd        = newStart + (duration * 60);
+
+            if (newStart < existingEnd && newEnd > existingStart) {
+                return false;
+            }
+        }
+        return true;
+    }
+    
     public boolean rescheduleAppointment(String appointmentID, String newDate,
             							 String newTime, String newTechID) {
     	File file = new File(appointmentFile);
